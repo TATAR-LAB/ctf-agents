@@ -31,7 +31,8 @@ dependencies = [
   "pyte",
   "tiktoken",
   "nyuctf",
-  "google-generativeai"
+  "google-generativeai",
+  "together"
 ]
 
 [project.urls]
