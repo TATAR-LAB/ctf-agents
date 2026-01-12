@@ -30,6 +30,10 @@ Use the following command to run it:
 
 ```
 python3 run_dcipher.py --split <test|development> --challenge <challenge-name> [--enable-autoprompt]
+
+OR
+
+uv run run_dcipher.py --split development --challenge "2016q-for-kill" --config configs/dcipher/ollama_config.yaml --keys ./keys.cfg
 ```
 
 To run the ablation experiment of single executor (i.e. without planner), use the following command:

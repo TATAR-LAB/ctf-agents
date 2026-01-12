@@ -44,7 +44,7 @@ class CTFEnvironment:
     def start_docker(self):
         logger.print(f"Starting environment container {self.container_image}...", force=True)
         cmd = ["docker", "run", "-d", "--rm", 
-               "--network", self.network, "--platform", "linux/amd64",
+               "--network", self.network,
                self.container_image]
         output = subprocess.run(cmd, check=True, capture_output=True, text=True)
         self.container = output.stdout.strip()
