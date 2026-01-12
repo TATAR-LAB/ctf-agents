@@ -25,4 +25,5 @@ pyte
 tiktoken
 nyuctf
 google-generativeai
+google-genai
 together

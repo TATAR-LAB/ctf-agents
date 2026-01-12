@@ -1,7 +1,7 @@
 """
-Gemini Backend for D-CIPHER (using new google-genai SDK)
-Uses Gemini API with API key authentication
-Get API key from: https://aistudio.google.com/apikey
+Vertex AI Backend for D-CIPHER
+Uses Application Default Credentials (ADC) - no API key needed!
+Authenticate with: gcloud auth application-default login
 """
 import json
 import uuid
@@ -10,7 +10,7 @@ from google.genai.types import (
     FunctionDeclaration, 
     GenerateContentConfig, 
     Tool, 
-    Part,
+    Part, 
     Content
 )
 
@@ -20,8 +20,9 @@ from ..tools import ToolCall, ToolResult
 from .backend import Backend, BackendResponse
 
 
-class GeminiBackend(Backend):
-    NAME = "gemini"
+class VertexAIBackend(Backend):
+    NAME = 'vertexai'
+    # Gemini models available on Vertex AI
     MODELS = {
         "gemini-2.5-pro": {
             "max_context": 2000000,
@@ -43,29 +44,42 @@ class GeminiBackend(Backend):
             "cost_per_input_token": 75e-08,
             "cost_per_output_token": 3e-07
         },
-        "gemini-1.5-flash-8b": {
-            "max_context": 1000000,
-            "cost_per_input_token": 375e-09,
-            "cost_per_output_token": 15e-08
-        },
         "gemini-1.5-pro": {
             "max_context": 2000000,
             "cost_per_input_token": 125e-08,
             "cost_per_output_token": 5e-06
         },
     }
+    
+    # Default location, can be overridden
+    LOCATION = "us-central1"
 
     def __init__(self, role, model, tools, api_key, config):
         super().__init__(role, model, tools, config)
-        # Initialize client with API key (non-Vertex AI)
-        self.client = genai.Client(api_key=api_key)
+        # api_key can contain "project_id:location" or just use defaults
+        # e.g., "my-project:us-central1" or just "my-project"
+        project_id = None
+        location = self.LOCATION
+        
+        if api_key and api_key.lower() != "adc":
+            parts = api_key.split(":")
+            project_id = parts[0] if parts[0] else None
+            if len(parts) > 1:
+                location = parts[1]
+        
+        # Initialize client with Vertex AI (uses ADC automatically)
+        self.client = genai.Client(
+            vertexai=True,
+            project=project_id,
+            location=location
+        )
         self.model = model
         self.tool_declarations = [self.get_tool_schema(tool) for tool in tools.values()]
         self.tool = Tool(function_declarations=self.tool_declarations)
 
     @staticmethod
     def get_tool_schema(tool):
-        """Convert tool to Gemini FunctionDeclaration format"""
+        """Convert tool to Vertex AI FunctionDeclaration format"""
         return FunctionDeclaration(
             name=tool.NAME,
             description=tool.DESCRIPTION,
@@ -136,7 +150,7 @@ class GeminiBackend(Backend):
             response = self._call_model(system, formatted_messages)
             cost = self.calculate_cost(response)
         except Exception as e:
-            return BackendResponse(error=f"Gemini API Error: {e}")
+            return BackendResponse(error=f"Vertex AI Error: {e}")
 
         try:
             candidates = response.candidates
