@@ -11,7 +11,8 @@ from google.genai.types import (
     GenerateContentConfig, 
     Tool, 
     Part,
-    Content
+    Content,
+    FunctionCall
 )
 
 from ..conversation import MessageRole
@@ -22,38 +23,7 @@ from .backend import Backend, BackendResponse
 
 class GeminiBackend(Backend):
     NAME = "gemini"
-    MODELS = {
-        "gemini-2.5-pro": {
-            "max_context": 2000000,
-            "cost_per_input_token": 1.25e-06,
-            "cost_per_output_token": 1e-05
-        },
-        "gemini-2.5-flash": {
-            "max_context": 1000000,
-            "cost_per_input_token": 3e-07,
-            "cost_per_output_token": 2.5e-06
-        },
-        "gemini-2.0-flash": {
-            "max_context": 1000000,
-            "cost_per_input_token": 3e-07,
-            "cost_per_output_token": 2.5e-06
-        },
-        "gemini-1.5-flash": {
-            "max_context": 1000000,
-            "cost_per_input_token": 75e-08,
-            "cost_per_output_token": 3e-07
-        },
-        "gemini-1.5-flash-8b": {
-            "max_context": 1000000,
-            "cost_per_input_token": 375e-09,
-            "cost_per_output_token": 15e-08
-        },
-        "gemini-1.5-pro": {
-            "max_context": 2000000,
-            "cost_per_input_token": 125e-08,
-            "cost_per_output_token": 5e-06
-        },
-    }
+    # Models are now defined in models.yaml
 
     def __init__(self, role, model, tools, api_key, config):
         super().__init__(role, model, tools, config)
@@ -79,9 +49,9 @@ class GeminiBackend(Backend):
     def _call_model(self, system, messages):
         config = GenerateContentConfig(
             temperature=self.get_param(self.role, "temperature"),
-            max_output_tokens=self.get_param(self.role, "max_tokens"),
+            max_output_tokens=int(self.get_param(self.role, "max_tokens")),
             tools=[self.tool],
-            system_instruction=system
+            system_instruction=str(system) if system else None
         )
         
         return self.client.models.generate_content(
@@ -114,14 +84,24 @@ class GeminiBackend(Backend):
                 msg = Content(role="user", parts=[part])
             elif m.role == MessageRole.ASSISTANT:
                 if m.tool_data is not None:
-                    # Function call from assistant
+                    # Function call from assistant - must preserve thought_signature for Gemini 3
                     args = m.tool_data.arguments
                     if isinstance(args, str):
                         args = json.loads(args)
-                    part = Part.from_function_call(
-                        name=m.tool_data.name,
-                        args=args
-                    )
+                    
+                    # Check if we have a thought_signature to preserve (required for Gemini 3)
+                    thought_sig = getattr(m.tool_data, 'thought_signature', None)
+                    if thought_sig:
+                        # Create Part with thought_signature for Gemini 3 compatibility
+                        part = Part(
+                            function_call=FunctionCall(name=m.tool_data.name, args=args),
+                            thought_signature=thought_sig
+                        )
+                    else:
+                        part = Part.from_function_call(
+                            name=m.tool_data.name,
+                            args=args
+                        )
                     msg = Content(role="model", parts=[part])
                 else:
                     part = Part.from_text(text=m.content or "No response")
@@ -152,10 +132,13 @@ class GeminiBackend(Backend):
                     content = part.text
                 if hasattr(part, 'function_call') and part.function_call:
                     fc = part.function_call
+                    # Capture thought_signature from response (required for Gemini 3)
+                    thought_sig = getattr(part, 'thought_signature', None)
                     tool_call = ToolCall(
                         name=fc.name, 
                         id=str(uuid.uuid4()),
-                        arguments=dict(fc.args) if fc.args else {}
+                        arguments=dict(fc.args) if fc.args else {},
+                        thought_signature=thought_sig
                     )
                     
         except Exception as e:

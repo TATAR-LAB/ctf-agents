@@ -25,29 +25,30 @@ class BackendResponse:
 
 class Backend:
     """Base class for LLM Backend"""
-    NAME = "base" # Set the backend name
-    # Set the model details for each subclass
-    MODELS = {
-        # "name": {
-        #    "max_context": <int>,
-        #    "cost_per_input_token": <float>,
-        #    "cost_per_output_token": <float>
-        # }
-    }
+    NAME = "base"  # Set the backend name in subclass
 
     def __init__(self, role: Role, model, tools, config):
-        if self.NAME == "base" or len(self.MODELS) == 0:
-            # This error will only occur if subclass is not defined properly or base class is instantiated
-            raise NotImplementedError("Backend name or models not set, initialize the details in the subclass")
-        if model not in self.MODELS:
-            raise KeyError(f"Model {model} not in configured models for backend {self.NAME}.\n" + \
-                            f"Select from: {', '.join(self.MODELS.keys())}")
+        # Import MODEL_INFO here to avoid circular imports
+        from . import MODEL_INFO
+        
+        if self.NAME == "base":
+            raise NotImplementedError("Backend name not set, initialize NAME in the subclass")
+        
+        if model not in MODEL_INFO:
+            # List models available for this backend
+            available = [m for m, info in MODEL_INFO.items() 
+                        if info.get('backend', self.NAME) == self.NAME or m in getattr(self.__class__, 'MODELS', {})]
+            raise KeyError(f"Model {model} not found in models.yaml.\n" + \
+                          f"Available models for {self.NAME}: {', '.join(available[:10])}{'...' if len(available) > 10 else ''}")
+        
+        model_info = MODEL_INFO[model]
         self.role = role
         self.model = model
         self.tools = tools
         self.config = config
-        self.in_price = self.MODELS[model]["cost_per_input_token"]
-        self.out_price = self.MODELS[model]["cost_per_output_token"]
+        # Explicitly convert to float in case YAML parsed as string
+        self.in_price = float(model_info["cost_per_input_token"])
+        self.out_price = float(model_info["cost_per_output_token"])
 
     def get_param(self, role: Role, param: str):
         try:

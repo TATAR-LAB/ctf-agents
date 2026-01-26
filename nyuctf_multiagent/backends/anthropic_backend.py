@@ -9,33 +9,7 @@ from .backend import Backend, BackendResponse
 
 class AnthropicBackend(Backend):
     NAME = "anthropic"
-    MODELS = {
-        "claude-3-5-sonnet-20241022": {
-            "max_context": 200000,
-            "cost_per_input_token": 3e-06,
-            "cost_per_output_token": 15e-06
-        },
-        "claude-3-5-sonnet-20240620": {
-            "max_context": 200000,
-            "cost_per_input_token": 3e-06,
-            "cost_per_output_token": 15e-06
-        },
-        "claude-3-5-haiku-20241022": {
-            "max_context": 200000,
-            "cost_per_input_token": 0.8e-06,
-            "cost_per_output_token": 4e-06
-        },
-        "claude-3-7-sonnet-20250219": {
-            "max_context": 200000,
-            "cost_per_input_token": 3e-06,
-            "cost_per_output_token": 15e-06
-        },
-        "claude-sonnet-4-20250514": {
-            "max_context": 200000,
-            "cost_per_input_token": 3e-06,
-            "cost_per_output_token": 15e-06
-        }
-    }
+    # Models are now defined in models.yaml
 
     def __init__(self, role, model, tools, api_key, config):
         super().__init__(role, model, tools, config)

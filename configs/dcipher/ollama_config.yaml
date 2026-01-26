@@ -1,6 +1,6 @@
 experiment:
   max_cost: 100.0 # Set high since Ollama is free
-  enable_autoprompt: True
+  enable_autoprompt: False
 
 planner:
   max_rounds: 30

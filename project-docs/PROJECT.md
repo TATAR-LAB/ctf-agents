@@ -94,8 +94,10 @@ uv pip install -r requirements.txt
 
 # 3. Build Docker image
 cd docker/multiagent
-docker build -f Dockerfile.arm -t ctfenv:multiagent .  # For Mac ARM
+# docker build -f Dockerfile.arm -t ctfenv:multiagent .  # For Mac ARM
+docker build -f Dockerfile -t ctfenv:multiagent .  # For Linux
 docker network create ctfnet
+cd ../..
 
 # 4. Configure keys.cfg
 echo "OLLAMA=ollama" > keys.cfg

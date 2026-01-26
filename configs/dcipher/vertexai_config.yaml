@@ -1,10 +1,10 @@
 experiment:
   max_cost: 1.0
-  enable_autoprompt: True
+  enable_autoprompt: False
 
 planner:
   max_rounds: 30
-  model: gemini-2.5-pro # Vertex AI Gemini model
+  model: gemini-3-pro-preview # Vertex AI Gemini model
   temperature: 1.0
   top_p: 1.0
   max_tokens: 4096
@@ -17,7 +17,7 @@ planner:
 
 executor:
   max_rounds: 100
-  model: gemini-2.5-flash # Vertex AI Gemini model
+  model: gemini-3-flash-preview # Vertex AI Gemini model
   temperature: 1.0
   top_p: 1.0
   max_tokens: 4096
@@ -32,7 +32,7 @@ executor:
 
 autoprompter:
   max_rounds: 5
-  model: gemini-2.5-pro # Vertex AI Gemini model
+  model: gemini-3-pro-preview # Vertex AI Gemini model
   temperature: 1.0
   max_tokens: 4096
   prompt: prompts/autoprompt_prompt.yaml

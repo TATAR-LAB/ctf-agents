@@ -10,53 +10,7 @@ from .backend import Backend, BackendResponse
 
 class OpenAIBackend(Backend):
     NAME = 'openai'
-    MODELS = {
-        "gpt-4o-2024-11-20": {
-            "max_context": 128000,
-            "cost_per_input_token": 2.5e-06,
-            "cost_per_output_token": 10e-06
-        },
-        "gpt-4o-2024-08-06": {
-            "max_context": 128000,
-            "cost_per_input_token": 2.5e-06,
-            "cost_per_output_token": 10e-06
-        },
-        "gpt-4o-2024-05-13": {
-            "max_context": 128000,
-            "cost_per_input_token": 5e-06,
-            "cost_per_output_token": 15e-06
-        },
-        "gpt-4o-mini-2024-07-18": {
-            "max_context": 128000,
-            "cost_per_input_token": 0.15e-06,
-            "cost_per_output_token": 0.6e-06
-        },
-        "gpt-3.5-turbo-1106": {
-            "max_context": 16385,
-            "cost_per_input_token": 1e-06,
-            "cost_per_output_token": 2e-06
-        },
-        "gpt-4-1106-preview": {
-            "max_context": 128000,
-            "cost_per_input_token": 10e-06,
-            "cost_per_output_token": 30e-06
-        },
-        "gpt-4-0125-preview": {
-            "max_context": 128000,
-            "cost_per_input_token": 10e-06,
-            "cost_per_output_token": 30e-06
-        },
-        "gpt-4-turbo-2024-04-09": {
-            "max_context": 128000,
-            "cost_per_input_token": 10e-06,
-            "cost_per_output_token": 30e-06
-        },
-        "gpt-4.1-2025-04-14": {
-            "max_context": 1000000,
-            "cost_per_input_token": 2e-06,
-            "cost_per_output_token": 8e-06
-        }
-    }
+    # Models are now defined in models.yaml
 
     def __init__(self, role, model, tools, api_key, config):
         super().__init__(role, model, tools, config)

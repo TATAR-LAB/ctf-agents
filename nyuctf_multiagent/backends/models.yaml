@@ -1,0 +1,89 @@
+# =============================================================================
+# Centralized Model Configuration for D-CIPHER
+# =============================================================================
+# This file defines all supported models with their backend, pricing, and limits.
+# Edit this file to add new models or update pricing - no Python code changes needed.
+#
+# Structure for each model:
+#   "model-name":
+#     backend: <backend_name>          # openai, anthropic, gemini, vertexai, ollama, openrouter, together
+#     max_context: <int>               # Maximum context window in tokens
+#     cost_per_input_token: <float>    # Cost per input token in dollars
+#     cost_per_output_token: <float>   # Cost per output token in dollars
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Vertex AI Gemini Models
+
+"gemini-3-pro-preview":
+  backend: vertexai
+  max_context: 128000
+  cost_per_input_token: 2e-06
+  cost_per_output_token: 1.2e-05
+
+"gemini-3-flash-preview":
+  backend: vertexai
+  max_context: 1000000
+  cost_per_input_token: 5e-07
+  cost_per_output_token: 3e-06
+
+"gemini-2.5-pro":
+  backend: vertexai
+  max_context: 2000000
+  cost_per_input_token: 1.25e-06
+  cost_per_output_token: 1e-05
+
+"gemini-2.5-flash":
+  backend: vertexai
+  max_context: 1000000
+  cost_per_input_token: 3e-07
+  cost_per_output_token: 2.5e-06
+
+# -----------------------------------------------------------------------------
+# Ollama Models
+
+"llama3.2:1b":
+  backend: ollama
+  max_context: 131072
+  cost_per_input_token: 0
+  cost_per_output_token: 0
+
+# -----------------------------------------------------------------------------
+# Anthropic via OpenRouter
+
+"anthropic/claude-opus-4.5":
+  backend: openrouter
+  max_context: 200000
+  cost_per_input_token: 5e-06
+  cost_per_output_token: 2.5e-05
+
+"anthropic/claude-sonnet-4.5":
+  backend: openrouter
+  max_context: 200000
+  cost_per_input_token: 3e-06
+  cost_per_output_token: 15e-06
+
+"anthropic/claude-haiku-4.5":
+  backend: openrouter
+  max_context: 200000
+  cost_per_input_token: 1e-06
+  cost_per_output_token: 5e-06
+
+# OpenAI via OpenRouter
+"openai/gpt-5.2":
+  backend: openrouter
+  max_context: 400000
+  cost_per_input_token: 1.75e-06
+  cost_per_output_token: 1.4e-05
+
+"openai/gpt-5.2-pro":
+  backend: openrouter
+  max_context: 400000
+  cost_per_input_token: 2.1e-05
+  cost_per_output_token: 1.68e-04
+
+"openai/gpt-5.2-codex":
+  backend: openrouter
+  max_context: 128000
+  cost_per_input_token: 1.75e-06
+  cost_per_output_token: 1.4e-05

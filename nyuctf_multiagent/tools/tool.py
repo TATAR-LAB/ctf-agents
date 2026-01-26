@@ -30,13 +30,15 @@ class Tool:
 
 class ToolCall:
     """Holds the call and arguments to a specific tool"""
-    def __init__(self, name, id=None, arguments=None, parsed_arguments=None):
+    def __init__(self, name, id=None, arguments=None, parsed_arguments=None, thought_signature=None):
         if id is None:
             id = CALL_ID()
         self.id = id
         self.name = name
         self.arguments = arguments
         self.parsed_arguments = parsed_arguments
+        # Gemini 3 models require thought_signature to be preserved for function calling
+        self.thought_signature = thought_signature
 
     def error(self, message):
         return ToolResult(self.name, self.id, {"error": message})
