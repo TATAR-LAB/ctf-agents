@@ -1,0 +1,45 @@
+# RQ4: Architecture - Large Planner + Small Executor (Gemini)
+# H4.1: Cost-optimal combination
+# Planner: Gemini 3 Pro (reasoning) | Executor: Gemini 3 Flash (fast)
+
+experiment:
+  max_cost: 1.0
+  enable_autoprompt: False
+
+planner:
+  max_rounds: 30
+  model: gemini-3-pro-preview
+  temperature: 1.0
+  top_p: 1.0
+  max_tokens: 4096
+  prompt: ../../dcipher/prompts/base_planner_prompt.yaml
+  toolset:
+    - run_command
+    - submit_flag
+    - giveup
+    - delegate
+
+executor:
+  max_rounds: 100
+  model: gemini-3-flash-preview
+  temperature: 1.0
+  top_p: 1.0
+  max_tokens: 4096
+  len_observations: 5
+  prompt: ../../dcipher/prompts/base_executor_prompt.yaml
+  toolset:
+    - run_command
+    - finish_task
+    - disassemble
+    - decompile
+    - create_file
+
+autoprompter:
+  max_rounds: 5
+  model: gemini-3-pro-preview
+  temperature: 1.0
+  max_tokens: 4096
+  prompt: ../../dcipher/prompts/autoprompt_prompt.yaml
+  toolset:
+    - run_command
+    - generate_prompt

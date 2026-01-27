@@ -1,0 +1,44 @@
+# RQ3: Model Selection - Claude 4.5 Opus (OpenRouter)
+# Type: Frontier model with reasoning (premium)
+
+experiment:
+  max_cost: 1.0
+  enable_autoprompt: False
+
+planner:
+  max_rounds: 30
+  model: anthropic/claude-opus-4.5
+  temperature: 1.0
+  top_p: 1.0
+  max_tokens: 4096
+  prompt: ../../dcipher/prompts/base_planner_prompt.yaml
+  toolset:
+    - run_command
+    - submit_flag
+    - giveup
+    - delegate
+
+executor:
+  max_rounds: 100
+  model: anthropic/claude-opus-4.5
+  temperature: 1.0
+  top_p: 1.0
+  max_tokens: 4096
+  len_observations: 5
+  prompt: ../../dcipher/prompts/base_executor_prompt.yaml
+  toolset:
+    - run_command
+    - finish_task
+    - disassemble
+    - decompile
+    - create_file
+
+autoprompter:
+  max_rounds: 5
+  model: anthropic/claude-opus-4.5
+  temperature: 1.0
+  max_tokens: 4096
+  prompt: ../../dcipher/prompts/autoprompt_prompt.yaml
+  toolset:
+    - run_command
+    - generate_prompt

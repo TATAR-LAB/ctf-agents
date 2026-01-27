@@ -53,14 +53,17 @@ This project evaluates different LLM architectures for solving Capture The Flag 
 
 ### Week 3 (Jan 26 - Feb 1): Experimentation & Analysis
 
-| Task                                        |
-| ------------------------------------------- |
-| Run systematic experiments (10+ challenges) |
-| Compare: D-CIPHER vs Baseline               |
-| Compare: Different model sizes              |
-| Analyze failure modes                       |
-| Add new CTF challenges (optional)           |
-| Begin literature review                     |
+| Task                                                      | RQ    |
+| --------------------------------------------------------- | ----- |
+| Run systematic experiments (20+ challenges)               | All   |
+| RQ1: Test Kali Linux Docker / MCP-Kali Server integration | RQ1   |
+| RQ2: Compare specialized vs generic prompts               | RQ2   |
+| RQ3: Benchmark frontier vs smaller models                 | RQ3   |
+| RQ5: Run 5 repetitions for variance analysis              | RQ5   |
+| Deploy open-source HuggingFace models to Vertex AI        | Setup |
+| Find how to use 290 challenges (90 CyBench + HackTheBox)  | Data  |
+| Collect Kali tool documentation / man pages               | RQ1   |
+| Analyze failure modes                                     | All   |
 
 **Deliverable:** Preliminary results table + key findings
 
@@ -120,16 +123,7 @@ uv run run_dcipher.py --split development --challenge "2016q-for-kill" --config 
 
 ### Models 
 
-| Model                               | Provider  | 
-| ----------------------------------- | --------- | 
-| `anthropic/claude-4.5-sonnet`       | Anthropic (OpenRouter) | 
-| `openai/gpt-4o`                     | OpenAI (OpenRouter)    | 
-| `google/gemini-2.5-pro`       | Google (Vertex AI)    | 
-| `google/gemini-2.5-flash`       | Google (Vertex AI)    | 
-| `meta-llama/llama-3.3-70b-instruct` | Meta (Vertex AI)      |
-| `deepseek/deepseek-r1`              | DeepSeek (Vertex AI)  | 
-| `Qwen/Qwen3-30B-A3B-Instruct-2507`        | Qwen (Vertex AI)      | 
-| `meta-llama/llama-3.1-8b-instruct` | Meta (Ollama)      | 
+https://1drv.ms/x/c/8ff85b3a143d6c03/IQDGBcKO9J0aSaqYDA3gJ-h6AYLZJ_oAdjsKYTNqO5vomzk
 
 ---
 
