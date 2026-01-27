@@ -6,12 +6,25 @@ from nyuctf.challenge import CTFChallenge
 from .tools import ToolCall, ToolResult, ALLTOOLS
 from .logging import logger
 
+# Docker image constants
+UBUNTU_IMAGE = "ctfenv:multiagent"
+KALI_IMAGE = "ctfenv:kali"
+
 class CTFEnvironment:
     """Manages the docker env for the agent, and the challenge container."""
-    def __init__(self, challenge: CTFChallenge, container_image: str, network: str, toolset: str="default"):
+    def __init__(self, challenge: CTFChallenge, container_image: str, network: str, 
+                 toolset: str="default", use_kali: bool=False):
         self.challenge = challenge
-        self.container_image = container_image
         self.network = network
+        self.use_kali = use_kali
+        
+        # Select container image based on use_kali flag
+        if use_kali:
+            self.container_image = KALI_IMAGE
+            logger.print(f"Using Kali Linux environment: {KALI_IMAGE}", force=True)
+        else:
+            self.container_image = container_image
+        
         self.tools = {}
         for tool in ALLTOOLS:
             tool_instance = tool(self)

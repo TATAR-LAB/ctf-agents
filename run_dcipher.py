@@ -28,13 +28,13 @@ parser.add_argument("--autoprompter-model", default=None, help="AutoPrompt model
 parser.add_argument("--max-cost", default=0.0, type=float, help="Max cost in $ (overrides config)")
 parser.add_argument("--enable-autoprompt", action="store_true", help="Init prompt message auto generated, else use generic base prompt")
 parser.add_argument("--strict", action="store_true", help="Enable strict mode for function calling") # TODO only works for Together, add to other backends
+parser.add_argument("--use-kali", action="store_true", help="Use Kali Linux Docker image (overrides config)")
 
 parser.add_argument("--planner_temperature", default=None, type=float, help="Temperature for the planner_model")
 parser.add_argument("--planner_top_p", default=None, type=float, help="Top_p for the planner_model")
 parser.add_argument("--executor_temperature", default=None, type=float, help="Temperature for the executor_model")
 parser.add_argument("--executor_top_p", default=None, type=float, help="Top_p for the executor_model")
 parser.add_argument("--planner_token", default=None, type=int, help="max_tokens")
-
 parser.add_argument("--executor_token", default=None, type=int, help="max_tokens")
 
 args = parser.parse_args()
@@ -54,8 +54,8 @@ if logfile.exists() and args.skip_existing:
     exit(0)
 
 keys = APIKeys(args.keys)
-environment = CTFEnvironment(challenge, args.container_image, args.container_network)
 
+# Load config
 if args.config:
     config_f = Path(args.config)
 else:
@@ -65,7 +65,11 @@ else:
 logger.print(f"Using config: {str(config_f)}", force=True)
 config = load_config(config_f, args=args)
 
+# Apply command-line overrides
 config.experiment.enable_autoprompt = True if args.enable_autoprompt else config.experiment.enable_autoprompt
+if args.use_kali:
+    config.experiment.use_kali = True
+
 if args.strict:
     config.planner.strict = True
     config.executor.strict = True
@@ -74,19 +78,20 @@ if args.strict:
 if args.executor_temperature is not None:
     config.planner.temperature = args.planner_temperature
     config.executor.temperature = args.executor_temperature
-    #config.autoprompter.temperature = args.temperature
 
 if args.executor_top_p:
     config.planner.top_p = args.planner_top_p
     config.executor.top_p = args.executor_top_p
-    #config.autoprompter.top_p = args.top_p
+
 if args.executor_token:
     config.planner.max_tokens = args.planner_token
     config.executor.max_tokens = args.executor_token
-    print("args.executor_token", args.executor_token)
-    print("args.executor_top_p", args.executor_top_p)
-    print("args.executor_temperature", args.executor_temperature)
-    #config.autoprompter.top_p = args.top_p
+
+# Create environment with Kali support
+environment = CTFEnvironment(challenge, args.container_image, args.container_network, 
+                             use_kali=config.experiment.use_kali)
+
+# Setup autoprompter
 autoprompter_backend_cls = MODELS[config.autoprompter.model]
 autoprompter_backend = autoprompter_backend_cls(Role.AUTOPROMPTER, config.autoprompter.model,
                                       environment.get_toolset(config.autoprompter.toolset),
@@ -98,6 +103,7 @@ autoprompter = AutoPromptAgent(environment, challenge, autoprompter_prompter,
 if config.experiment.enable_autoprompt:
     autoprompter.enable_autoprompt()
 
+# Setup planner
 planner_backend_cls = MODELS[config.planner.model]
 planner_backend = planner_backend_cls(Role.PLANNER, config.planner.model,
                                       environment.get_toolset(config.planner.toolset),
@@ -106,6 +112,7 @@ planner_prompter = PromptManager(config_f.parent / config.planner.prompt, challe
 planner = PlannerAgent(environment, challenge, planner_prompter,
                        planner_backend, max_rounds=config.planner.max_rounds)
 
+# Setup executor
 executor_backend_cls = MODELS[config.executor.model]
 executor_backend = executor_backend_cls(Role.EXECUTOR, config.executor.model,
                                         environment.get_toolset(config.executor.toolset),
@@ -115,5 +122,7 @@ executor = ExecutorAgent(environment, challenge, executor_prompter,
                          executor_backend, max_rounds=config.executor.max_rounds)
 executor.conversation.len_observations = config.executor.len_observations
 
-with PlannerExecutorSystem(environment, challenge, autoprompter, planner, executor, max_cost=config.experiment.max_cost, logfile=logfile) as multiagent:
+# Run the multi-agent system
+with PlannerExecutorSystem(environment, challenge, autoprompter, planner, executor, 
+                           max_cost=config.experiment.max_cost, logfile=logfile) as multiagent:
     multiagent.run()

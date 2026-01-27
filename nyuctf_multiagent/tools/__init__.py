@@ -5,9 +5,10 @@ from .misc import SubmitFlagTool, GiveupTool, DelegateTool, FinishTaskTool, GenA
 from .run_command import RunCommandTool
 from .editing import CreateFileTool
 from .reversing import DisassembleTool, DecompileTool
+from .lookup import LookupCommandTool
 
 ALLTOOLS = {RunCommandTool, SubmitFlagTool, GiveupTool, CreateFileTool, GenAutoPromptTool,
-            DelegateTool, FinishTaskTool, DisassembleTool, DecompileTool}
+            DelegateTool, FinishTaskTool, DisassembleTool, DecompileTool, LookupCommandTool}
 # Not needed, defined in config
 # TOOLSETS = {
 #     "default": {RunCommandTool, CreateFileTool, SubmitFlagTool, GiveupTool},

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 class ExperimentConfig:
     max_cost: float
     enable_autoprompt: bool
+    use_kali: bool = False  # Use Kali Linux Docker image instead of Ubuntu
 
 @dataclass
 class AgentConfig:
@@ -23,7 +24,8 @@ class Config:
         self.config_yaml = {} if not config_path else yaml.safe_load(config_path.open("r"))
         self.experiment = ExperimentConfig(
             max_cost=self.config_yaml.get("experiment", {}).get("max_cost", 1.0),
-            enable_autoprompt=self.config_yaml.get("experiment", {}).get("enable_autoprompt", True)
+            enable_autoprompt=self.config_yaml.get("experiment", {}).get("enable_autoprompt", True),
+            use_kali=self.config_yaml.get("experiment", {}).get("use_kali", False)
         )
 
         self.planner = AgentConfig(
