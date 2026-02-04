@@ -1,17 +1,16 @@
-# RQ1: Infrastructure - Kali Linux Docker
-# Environment: Kali Linux Docker (requires kali docker image)
-# Purpose: Test enhanced security tooling
-# Note: Uses same prompts as Ubuntu for fair infrastructure comparison
-# Additional: Includes lookup_command tool for Kali tool documentation
+# RQ1+RQ2: Ubuntu + Tips + AutoPrompt
+# Environment: Ubuntu 22.04 Docker (default)
+# Prompts: With IMPORTANT TIPS section (base dcipher prompts)
+# AutoPrompt: Enabled
+# Purpose: Full dcipher baseline with all features enabled
 
 experiment:
-  max_cost: 1.0
-  enable_autoprompt: False
-  use_kali: True  # Use Kali Linux Docker image
+  max_cost: 5.0
+  enable_autoprompt: True
 
 planner:
   max_rounds: 30
-  model: anthropic/claude-opus-4.5
+  model: gemini-3-pro-preview
   temperature: 1.0
   top_p: 1.0
   max_tokens: 4096
@@ -21,11 +20,10 @@ planner:
     - submit_flag
     - giveup
     - delegate
-    - lookup_command  # Kali tool documentation lookup
 
 executor:
   max_rounds: 100
-  model: anthropic/claude-sonnet-4.5
+  model: gemini-3-pro-preview
   temperature: 1.0
   top_p: 1.0
   max_tokens: 4096
@@ -37,11 +35,10 @@ executor:
     - disassemble
     - decompile
     - create_file
-    - lookup_command  # Kali tool documentation lookup
 
 autoprompter:
   max_rounds: 5
-  model: anthropic/claude-opus-4.5
+  model: gemini-3-pro-preview
   temperature: 1.0
   max_tokens: 4096
   prompt: ../../dcipher/prompts/autoprompt_prompt.yaml

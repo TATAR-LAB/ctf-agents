@@ -109,17 +109,16 @@ class VertexAIBackend(Backend):
                     
                     # Check if we have a thought_signature to preserve (required for Gemini 3)
                     thought_sig = getattr(m.tool_data, 'thought_signature', None)
-                    if thought_sig:
-                        # Create Part with thought_signature for Gemini 3 compatibility
-                        part = Part(
-                            function_call=FunctionCall(name=m.tool_data.name, args=args),
-                            thought_signature=thought_sig
-                        )
-                    else:
-                        part = Part.from_function_call(
-                            name=m.tool_data.name,
-                            args=args
-                        )
+                    # Gemini 3 models REQUIRE thought_signature for function calls
+                    # If we don't have one from a previous response, use the skip validator workaround
+                    if not thought_sig:
+                        thought_sig = "skip_thought_signature_validator"
+                    
+                    # Create Part with thought_signature for Gemini 3 compatibility
+                    part = Part(
+                        function_call=FunctionCall(name=m.tool_data.name, args=args),
+                        thought_signature=thought_sig
+                    )
                     msg = Content(role="model", parts=[part])
                 else:
                     part = Part.from_text(text=m.content or "No response")

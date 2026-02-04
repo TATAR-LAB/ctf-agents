@@ -6,22 +6,95 @@ from ..logging import logger
 from .tool import Tool
 
 
+class ListCommandsTool(Tool):
+    """Tool to list all available security commands with brief descriptions."""
+    
+    NAME = "list_commands"
+    DESCRIPTION = "List all available security commands with brief descriptions. Use this to discover what tools are available in the environment."
+    
+    PARAMETERS = {}
+    REQUIRED_PARAMETERS = set()
+    
+    # Default path to the documentation CSV
+    # Path: tools/lookup.py -> nyuctf_multiagent/ -> ctf-agents/ -> docker/kali/
+    DEFAULT_CSV_PATH = Path(__file__).parent.parent.parent / "docker" / "kali" / "commands_documentation.csv"
+    
+    def __init__(self, environment=None, csv_path=None):
+        super().__init__()
+        self.csv_path = csv_path or self.DEFAULT_CSV_PATH
+        self._commands = None
+    
+    def _load_commands(self):
+        """Load commands from CSV file."""
+        if self._commands is not None:
+            return self._commands
+        
+        self._commands = {}
+        if not os.path.exists(self.csv_path):
+            return self._commands
+        
+        try:
+            with open(self.csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    cmd_name = row.get('command', '').strip().lower()
+                    if cmd_name:
+                        self._commands[cmd_name] = {
+                            'command': row.get('command', '').strip(),
+                            'category': row.get('category', '').strip(),
+                            'brief': row.get('brief', '').strip(),
+                        }
+        except Exception:
+            pass
+        
+        return self._commands
+    
+    def call(self):
+        commands = self._load_commands()
+        
+        if not commands:
+            return {"error": "Commands list not available."}
+        
+        # Group by category
+        by_category = {}
+        for cmd_name, cmd_info in sorted(commands.items()):
+            cat = cmd_info['category'] or 'other'
+            if cat not in by_category:
+                by_category[cat] = []
+            by_category[cat].append(f"- {cmd_info['command']} - {cmd_info['brief']}")
+        
+        result = ""
+        for cat in sorted(by_category.keys()):
+            result += f"## {cat.title()}\n"
+            result += "\n".join(by_category[cat]) + "\n\n"
+        
+        return {"commands": result}
+    
+    def print_tool_call(self, tool_call):
+        logger.assistant_action(f"**{self.NAME}**")
+    
+    def print_result(self, tool_result):
+        if "error" in tool_result.result:
+            logger.print(f"[bold]{self.NAME}[/bold]: [red]{tool_result.result['error']}[/red]", markup=True)
+        else:
+            logger.print(f"[bold]{self.NAME}[/bold]: Listed {len(self._load_commands())} commands", markup=True)
+
+
 class LookupCommandTool(Tool):
     """Tool to look up documentation for shell commands available in Kali Linux."""
     
     NAME = "lookup_command"
-    DESCRIPTION = """Look up documentation for a shell command. Use this to learn about available security tools and their usage.
-- Pass a command name to get its documentation (e.g., "nmap", "sqlmap", "john")
-- Pass "list" or "all" to see all available commands with brief descriptions
-- Pass a category like "network", "web", "crypto", "forensics", "reversing", "password" to list commands in that category"""
+    DESCRIPTION = """Look up detailed documentation for a specific shell command. Use this to learn about a tool's usage, options, and examples.
+Pass the command name to get its documentation (e.g., "nmap", "sqlmap", "john")."""
     
     PARAMETERS = {
-        "query": ("string", "The command name to look up, 'list'/'all' to see all commands, or a category name"),
+        "command": ("string", "The command name to look up (e.g., 'nmap', 'sqlmap', 'john')"),
     }
-    REQUIRED_PARAMETERS = {"query"}
+    REQUIRED_PARAMETERS = {"command"}
     
     # Default path to the documentation CSV
-    DEFAULT_CSV_PATH = Path(__file__).parent.parent.parent.parent / "docker" / "kali" / "commands_documentation.csv"
+    # Path: tools/lookup.py -> nyuctf_multiagent/ -> ctf-agents/ -> docker/kali/
+    DEFAULT_CSV_PATH = Path(__file__).parent.parent.parent / "docker" / "kali" / "commands_documentation.csv"
     
     def __init__(self, environment=None, csv_path=None):
         super().__init__()
@@ -57,44 +130,19 @@ class LookupCommandTool(Tool):
         
         return self._commands
     
-    def call(self, query=None):
-        if query is None:
-            return {"error": "Query not provided. Pass a command name, 'list', or a category."}
+    def call(self, command=None):
+        if command is None:
+            return {"error": "Command name not provided. Use list_commands to see available commands."}
         
-        query = query.strip().lower()
+        command = command.strip().lower()
         commands = self._load_commands()
         
         if not commands:
-            return {"error": "Commands documentation not available. The CSV file may be missing or empty."}
-        
-        # List all commands
-        if query in ('list', 'all'):
-            result = "# Available Commands\n\n"
-            by_category = {}
-            for cmd_name, cmd_info in sorted(commands.items()):
-                cat = cmd_info['category'] or 'other'
-                if cat not in by_category:
-                    by_category[cat] = []
-                by_category[cat].append(f"- **{cmd_info['command']}**: {cmd_info['brief']}")
-            
-            for cat in sorted(by_category.keys()):
-                result += f"## {cat.title()}\n"
-                result += "\n".join(by_category[cat]) + "\n\n"
-            
-            return {"documentation": result}
-        
-        # List commands by category
-        categories = set(cmd['category'].lower() for cmd in commands.values() if cmd['category'])
-        if query in categories:
-            result = f"# {query.title()} Commands\n\n"
-            for cmd_name, cmd_info in sorted(commands.items()):
-                if cmd_info['category'].lower() == query:
-                    result += f"- **{cmd_info['command']}**: {cmd_info['brief']}\n"
-            return {"documentation": result}
+            return {"error": "Commands documentation not available."}
         
         # Look up specific command
-        if query in commands:
-            cmd = commands[query]
+        if command in commands:
+            cmd = commands[command]
             result = f"# {cmd['command']}\n\n"
             result += f"**Category:** {cmd['category']}\n\n"
             result += f"**Description:** {cmd['description']}\n\n"
@@ -105,20 +153,20 @@ class LookupCommandTool(Tool):
             return {"documentation": result}
         
         # Fuzzy match - suggest similar commands
-        suggestions = [cmd for cmd in commands.keys() if query in cmd or cmd in query]
+        suggestions = [cmd for cmd in commands.keys() if command in cmd or cmd in command]
         if suggestions:
             return {
-                "error": f"Command '{query}' not found.",
+                "error": f"Command '{command}' not found.",
                 "suggestions": f"Did you mean: {', '.join(suggestions[:5])}?"
             }
         
         return {
-            "error": f"Command '{query}' not found.",
-            "hint": "Use 'list' to see all available commands, or a category like 'network', 'web', 'crypto'."
+            "error": f"Command '{command}' not found.",
+            "hint": "Use list_commands to see all available commands."
         }
     
     def print_tool_call(self, tool_call):
-        logger.assistant_action(f"**{self.NAME}:** `{tool_call.parsed_arguments.get('query', '')}`")
+        logger.assistant_action(f"**{self.NAME}:** `{tool_call.parsed_arguments.get('command', '')}`")
     
     def print_result(self, tool_result):
         if "error" in tool_result.result:
