@@ -141,9 +141,17 @@ class VertexAIBackend(Backend):
         try:
             candidates = response.candidates
             if not candidates:
-                return BackendResponse(content=None, tool_call=None, cost=0)
+                return BackendResponse(content=None, tool_call=None, cost=cost)
             
-            parts = candidates[0].content.parts
+            # content or parts can be None for blocked/empty responses
+            candidate_content = candidates[0].content
+            if not candidate_content:
+                return BackendResponse(content=None, tool_call=None, cost=cost)
+            
+            parts = candidate_content.parts
+            if not parts:
+                return BackendResponse(content=None, tool_call=None, cost=cost)
+            
             content = None
             tool_call = None
             
