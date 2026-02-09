@@ -50,7 +50,7 @@ def append_to_finished(finished_file, challenge_name, output, docker_error_count
                 if docker_error_count['key'] >= 6:
                     print("⚠ 6 consecutive Docker errors detected - running fix command...", flush=True)
                     print("Running docker build command...", flush=True)
-                    subprocess.run(["docker", "build", "-f", "./docker/kali/Dockerfile", "-t", "ctfenv:kali", "./docker/kali"], check=False)
+                    #subprocess.run(["docker", "build", "-f", "./docker/kali/Dockerfile", "-t", "ctfenv:kali", "./docker/kali"], check=False)
                     print("Docker build complete, waiting 5 seconds...", flush=True)
                     #wait 5 secs give the vm time
                     time.sleep(5)
