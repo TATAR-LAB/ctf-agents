@@ -247,50 +247,16 @@ For each experimental run, record:
 
 - [x] Vertex AI access for Gemini and partner models
 - [x] OpenRouter credits for proprietary model access
-- [-] Local GPU for Ollama (optional)
+- [x] Local GPU for Ollama (optional)
 - [x] Docker environment with sufficient compute
 
 ### Data
 
 - [x] NYU CTF Bench dataset (200 challenges)
-- [ ] Additional challenges from CyBench (optional)
+- [-] Additional challenges from CyBench (optional)
 
 ### Tools
 
-- [ ] Kali Linux Docker image
-- [ ] MCP-Kali Server installation
-- [ ] Logging and analysis scripts
-
----
-
-## Future Study
-
-The following directions are identified for future research beyond this proposal:
-
-### 1. Dynamic Hacking Capacity Benchmarking
-
-Use HackTheBox (HTB) machines for more realistic, dynamic security assessment scenarios that go beyond static CTF challenges.
-
-### 2. CTF Solving Log Analysis
-
-Conduct a study based on collected CTF solving log data to identify:
-- Common failure patterns
-- Successful strategy patterns
-- Model-specific behaviors
-
-### 3. New Agent Frameworks
-
-- Develop an orchestrator agent that dynamically assigns tasks to either single-agent or multi-agent frameworks based on:
-   - Challenge characteristics
-   - Estimated difficulty
-   - Cost-performance optimization
-
-- Consider testing chain-of-thought prompting vs. standard prompting
-- Explore retrieval-augmented generation (RAG) for security knowledge
-- Investigate agent self-reflection mechanisms
-- Consider curriculum learning (easy → hard challenges)
-- Test multi-turn retry strategies on failed challenges
-
-### 4. Single-Agent vs. Multi-Agent Comparison
-
-A detailed comparison of single-agent (`run_single_executor.py`) vs. multi-agent (`run_dcipher.py`) architectures across challenge difficulty levels. This has been partially addressed in prior work but warrants deeper investigation with newer models and architectures.
+- [x] Kali Linux Docker image
+- [x] MCP-Kali Server installation
+- [-] Logging and analysis scripts

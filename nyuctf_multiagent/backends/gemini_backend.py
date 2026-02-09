@@ -63,8 +63,11 @@ class GeminiBackend(Backend):
     def calculate_cost(self, response):
         usage = response.usage_metadata
         if usage:
-            return (self.in_price * usage.prompt_token_count + 
-                    self.out_price * usage.candidates_token_count)
+            # Token counts can be None for some responses
+            prompt_tokens = usage.prompt_token_count or 0
+            output_tokens = usage.candidates_token_count or 0
+            return (self.in_price * prompt_tokens + 
+                    self.out_price * output_tokens)
         return 0
 
     def send(self, messages):
