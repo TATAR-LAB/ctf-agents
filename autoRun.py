@@ -11,24 +11,23 @@ import time
 import fcntl
 
 #create a directory for the log files with the name of the config you are using, and change this to that directory
-logDir = "logs_dcipher/jupyter/kali_generic"
+logDir = ""
 #ensure this is correct config for the configuration you want to run
-configDir = "configs/tatar-project/RQ1_RQ2/kali_generic.yaml"
+configDir = "configs/tatar-project/"
 #make sure you select the correct split
 split = "test"
 #files for the challenges
-input_file = "inputChallengesReal.txt"  # File containing challenge names (one per line)
+input_file = "inputChallenges.txt"  # File containing challenge names (one per line)
 finished_file = f"{logDir}/finishedChallenges.txt"  # File containing challenges and a desc of their log (one per line)
 
-def append_to_finished(finished_file, challenge_name, output, docker_error_count):
+def append_to_finished(finished_file, challenge_name, output):
     """
     Append the challenge name to the finished challenges file with status.
 
     Args:
-        finish_file: Path to the finished challenges file
+        finished_file: Path to the finished challenges file
         challenge_name: Challenge name to append
-        output: The command output to check for status
-        docker_error_count: Current count of consecutive docker errors
+        output: The output of d-cipher framework 
     """
     # Also check the full output for errors
     output = output.lower()
@@ -42,25 +41,10 @@ def append_to_finished(finished_file, challenge_name, output, docker_error_count
             status_parts.append('KEY_ERROR')
         elif 'traceback (most recent call last)' in output:
             status_parts.append('FAILED TO RUN')
-            # Check for docker-specific error
-            if 'self.start_docker' in output:
-                docker_error_count['key'] +=1
-                print(f"⚠ Docker error detected ({docker_error_count['key']}/6)", flush=True)
-                #if too many docker errors, rebuild the docker environment
-                if docker_error_count['key'] >= 6:
-                    print("⚠ 6 consecutive Docker errors detected - running fix command...", flush=True)
-                    print("Running docker build command...", flush=True)
-                    #subprocess.run(["docker", "build", "-f", "./docker/kali/Dockerfile", "-t", "ctfenv:kali", "./docker/kali"], check=False)
-                    print("Docker build complete, waiting 5 seconds...", flush=True)
-                    #wait 5 secs give the vm time
-                    time.sleep(5)
-                    docker_error_count['key'] = 0  # Reset counter after running fix
     elif 'challenge solved' in output:
         status_parts.append('SOLVED')
-        docker_error_count['key'] = 0  # Reset on successful run (even if not solved)
     else:
         status_parts.append('NOT_SOLVED')
-        docker_error_count['key'] = 0  # Reset on successful run (even if not solved)
     # append the last line of log info
     lines = output.strip().split('\n')
     last_line = lines[-1].strip()
@@ -83,7 +67,6 @@ def append_to_finished(finished_file, challenge_name, output, docker_error_count
 def get_next_challenge(input_file):
     """
     Get the next challenge from the input file and remove it atomically.
-    Thread-safe with file locking.
 
     Args:
         input_file: Path to the input file
@@ -103,7 +86,7 @@ def get_next_challenge(input_file):
             challenge_name = None
             for i, line in enumerate(lines):
                 #if challenge unclaimed
-                if not line.strip().endswith('CLAIMED'):
+                if 'CLAIMED' not in line.strip():
                     challenge_name = line.strip()
                     # Mark this challenge as claimed
                     lines[i] = f"{challenge_name} CLAIMED\n"
@@ -215,9 +198,7 @@ def main():
         with open(finished_file, 'w') as f:
             pass  # Create empty file
         print(f"Created finished challenges file: {finished_file}")
-    docker_error_count = {'key': 0}
 
-    print(f"Starting challenge processing (PID: {os.getpid()})")
     print("=" * 60)
 
     #for each challenge run command and process files
@@ -240,7 +221,7 @@ def main():
         output = "".join(output)
 
         #process the output
-        append_to_finished(finished_file, challenge_name, output, docker_error_count)
+        append_to_finished(finished_file, challenge_name, output)
         remove_from_input_file(input_file, challenge_name)
 
         print("Challenged completed.", flush=True)
