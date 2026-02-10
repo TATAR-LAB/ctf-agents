@@ -13,7 +13,7 @@ import fcntl
 #create a directory for the log files with the name of the config you are using, and change this to that directory
 logDir = ""
 #ensure this is correct config for the configuration you want to run
-configDir = "configs/tatar-project/"
+config = "configs/tatar-project/"
 #make sure you select the correct split
 split = "test"
 #files for the challenges
@@ -148,7 +148,7 @@ def run_dcipher_command(challenge_name):
     cmd = [
         "uv", "run", "run_dcipher.py",
         "--logdir", logDir,
-        "--config", configDir,
+        "--config", config,
         "--split", split,
         "--challenge", challenge_name,
         "--keys", "./keys.cfg",
