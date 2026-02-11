@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Filter finished challenge log file and extract names of challenges that failed to run or had exceptions.
-Doesn't include challenges that previously sucesfully ran
+Doesn't include challenges that previously successfully ran
 
 Command syntax: uv run filterFinishedChallengesManual.py <input_file> <output_file>
 """
