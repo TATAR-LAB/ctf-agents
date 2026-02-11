@@ -1,5 +1,5 @@
 """
-Copy this file to config.py and customize for your setup.
+Copy this file to autoRunConfig.py and customize for your setup.
 autoRunConfig.py is gitignored and won't be overwritten by pulls.
 """
 #Ensure to include this for the config file to function
