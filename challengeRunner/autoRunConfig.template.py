@@ -15,5 +15,5 @@ config = os.path.expanduser("~/ctf-agents/configs/<YOUR_CONFIG_PATH>")  # e.g., 
 split = "test"  # Options: "test", "development"
 
 # Files for the challenges 
-inputFile = "<YOUR_INPUT_FILE>"  # e.g., "inputChallenges.txt" - File containing challenge names (one per line)
-finishedFile = f"{logDir}/<YOUR_FINISHED_FILE>"  # e.g., "finishedChallenges.txt" - File tracking completed challenges - Goes into parent directory of log files
+input_file = "<YOUR_INPUT_FILE>"  # e.g., "inputChallenges.txt" - File containing challenge names (one per line)
+finished_file = f"{logDir}/<YOUR_FINISHED_FILE>"  # e.g., "finishedChallenges.txt" - File tracking completed challenges - Goes into parent directory of log files
