@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Script to autorun dcipher commands over an inputted challenge list file to a outputted list of finished files
 Deletes entries for completed challenges from input, and adds them to output file with log info
@@ -7,28 +6,25 @@ Deletes entries for completed challenges from input, and adds them to output fil
 import subprocess
 import os
 import sys
-import time
 import fcntl
+import filterFinishedChallenges
 
-#create a directory for the log files with the name of the config you are using, and change this to that directory
-logDir = "logs_dcipher/jupyter/kali_generic"
-#ensure this is correct config for the configuration you want to run
-configDir = "configs/tatar-project/RQ1_RQ2/kali_generic.yaml"
-#make sure you select the correct split
-split = "test"
-#files for the challenges
-input_file = "inputChallengesReal.txt"  # File containing challenge names (one per line)
-finished_file = f"{logDir}/finishedChallenges.txt"  # File containing challenges and a desc of their log (one per line)
+#import configs
+try:
+    from autoRunConfig import logDir, config, split, input_file, finished_file
+except ImportError:
+    print("Error: autoRunConfig.py not found!")
+    print("Copy autoRunConfig.template.py to autoRunConfig.py and customize it.")
+    exit(1)
 
-def append_to_finished(finished_file, challenge_name, output, docker_error_count):
+def append_to_finished(finished_file, challenge_name, output):
     """
     Append the challenge name to the finished challenges file with status.
 
     Args:
-        finish_file: Path to the finished challenges file
+        finished_file: Path to the finished challenges file
         challenge_name: Challenge name to append
-        output: The command output to check for status
-        docker_error_count: Current count of consecutive docker errors
+        output: The output of d-cipher framework
     """
     # Also check the full output for errors
     output = output.lower()
@@ -42,25 +38,10 @@ def append_to_finished(finished_file, challenge_name, output, docker_error_count
             status_parts.append('KEY_ERROR')
         elif 'traceback (most recent call last)' in output:
             status_parts.append('FAILED TO RUN')
-            # Check for docker-specific error
-            if 'self.start_docker' in output:
-                docker_error_count['key'] +=1
-                print(f"⚠ Docker error detected ({docker_error_count['key']}/6)", flush=True)
-                #if too many docker errors, rebuild the docker environment
-                if docker_error_count['key'] >= 6:
-                    print("⚠ 6 consecutive Docker errors detected - running fix command...", flush=True)
-                    print("Running docker build command...", flush=True)
-                    #subprocess.run(["docker", "build", "-f", "./docker/kali/Dockerfile", "-t", "ctfenv:kali", "./docker/kali"], check=False)
-                    print("Docker build complete, waiting 5 seconds...", flush=True)
-                    #wait 5 secs give the vm time
-                    time.sleep(5)
-                    docker_error_count['key'] = 0  # Reset counter after running fix
     elif 'challenge solved' in output:
         status_parts.append('SOLVED')
-        docker_error_count['key'] = 0  # Reset on successful run (even if not solved)
     else:
         status_parts.append('NOT_SOLVED')
-        docker_error_count['key'] = 0  # Reset on successful run (even if not solved)
     # append the last line of log info
     lines = output.strip().split('\n')
     last_line = lines[-1].strip()
@@ -77,19 +58,16 @@ def append_to_finished(finished_file, challenge_name, output, docker_error_count
         f.flush()
         # unlock the file
         fcntl.flock(f, fcntl.LOCK_UN)
-
     print(f"✓ Added to finished challenges: {status_line}", flush=True)
 
 def get_next_challenge(input_file):
     """
-    Get the next challenge from the input file and remove it atomically.
-    Thread-safe with file locking.
+    Get the next challenge from the input file and claim it atomically.
 
     Args:
         input_file: Path to the input file
-
     Returns:
-        Challenge name or None if no challenges remain
+        Challenge name or None if no unclaimed challenges remain
     """
     try:
         with open(input_file, 'r+') as f:
@@ -103,7 +81,7 @@ def get_next_challenge(input_file):
             challenge_name = None
             for i, line in enumerate(lines):
                 #if challenge unclaimed
-                if not line.strip().endswith('CLAIMED'):
+                if 'CLAIMED' not in line.strip():
                     challenge_name = line.strip()
                     # Mark this challenge as claimed
                     lines[i] = f"{challenge_name} CLAIMED\n"
@@ -163,12 +141,12 @@ def run_dcipher_command(challenge_name):
         Tuple of (success: bool, output: str) where output contains the command output
     """
     cmd = [
-        "uv", "run", "run_dcipher.py",
+        "uv", "run", os.path.expanduser("~/ctf-agents/run_dcipher.py"),
         "--logdir", logDir,
-        "--config", configDir,
+        "--config", config,
         "--split", split,
         "--challenge", challenge_name,
-        "--keys", "./keys.cfg",
+        "--keys", os.path.expanduser("~/ctf-agents/keys.cfg"),
     ]
 
     try:
@@ -215,13 +193,11 @@ def main():
         with open(finished_file, 'w') as f:
             pass  # Create empty file
         print(f"Created finished challenges file: {finished_file}")
-    docker_error_count = {'key': 0}
 
-    print(f"Starting challenge processing (PID: {os.getpid()})")
     print("=" * 60)
 
     #for each challenge run command and process files
-    #!!!!!!!!!!!!!!need to implement a time check to skip a challenge if it takes too long !!!!!!!!!!!!!!
+    #TODO need to implement a time check to skip a challenge if it takes too long !!!!!!!!!!!!!!
     while True:
         # Get next unclaimed challenge and mark it as claimed atomically
         # This prevents other processes from picking up the same challenge
@@ -232,6 +208,16 @@ def main():
             print("\nNo more challenges to process")
             break
 
+        # get_next_challenge returns none if it cannot locate an unclaimed file
+        if challenge_name is None:
+            print("CHECKING FOR MORE CHALLENGES")
+            # add challenges that didn't successfully run to the list of input challenges
+            if not filterFinishedChallenges.parseChallengeLog(finished_file, input_file):
+                # end script if no challenges are left to be ran
+                break
+            # go back and try now that challenges are added
+            else: continue
+
         # Run the command
         output = run_dcipher_command(challenge_name)
         #extract only 15 lines
@@ -240,7 +226,7 @@ def main():
         output = "".join(output)
 
         #process the output
-        append_to_finished(finished_file, challenge_name, output, docker_error_count)
+        append_to_finished(finished_file, challenge_name, output)
         remove_from_input_file(input_file, challenge_name)
 
         print("Challenged completed.", flush=True)
