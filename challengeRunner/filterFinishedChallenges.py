@@ -57,7 +57,7 @@ def parseChallengeLog(inputFile, outputFile):
             pass  # Create empty file
         print(f"Created filtered output challenges file: {outputFile}")
     # Write filtered challenges to input challenges file
-    with open(outputFile, 'w') as f:
+    with open(outputFile, 'a') as f:
         # lock the file
         fcntl.flock(f, fcntl.LOCK_EX)
         for name in challengeNames:
