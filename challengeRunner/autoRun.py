@@ -203,15 +203,10 @@ def main():
         # This prevents other processes from picking up the same challenge
         challenge_name = get_next_challenge(input_file)
 
-        # get_next_challenge returns none if it cannot locate an unclaimed file
+        #get_next_challenge returns none if it cannot locate an unclaimed file
         if challenge_name is None:
-            print("CHECKING FOR MORE CHALLENGES")
-            # add challenges that didn't successfully run to the list of input challenges
-            if not filterFinishedChallenges.parseChallengeLog(finished_file, input_file):
-                # end script if no challenges are left to be ran
-                break
-            # go back and try now that challenges are added
-            else: continue
+            print("\nNo more challenges to process")
+            break
 
         # Run the command
         output = run_dcipher_command(challenge_name)
