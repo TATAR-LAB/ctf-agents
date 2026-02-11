@@ -9,7 +9,6 @@ import sys
 import fcntl
 import filterFinishedChallenges
 
-<<<<<<< HEAD:challengeRunner/autoRun.py
 #import configs
 try:
     from autoRunConfig import logDir, config, split, input_file, finished_file
@@ -17,17 +16,6 @@ except ImportError:
     print("Error: autoRunConfig.py not found!")
     print("Copy autoRunConfig.template.py to autoRunConfig.py and customize it.")
     exit(1)
-=======
-#create a directory for the log files with the name of the config you are using, and change this to that directory
-logDir = ""
-#ensure this is correct config for the configuration you want to run
-config = "configs/tatar-project/"
-#make sure you select the correct split
-split = "test"
-#files for the challenges
-input_file = "inputChallenges.txt"  # File containing challenge names (one per line)
-finished_file = f"{logDir}/finishedChallenges.txt"  # File containing challenges and a desc of their log (one per line)
->>>>>>> f9cde8f3904da1286e243c988d44fdc70659ffc4:autoRun.py
 
 def append_to_finished(finished_file, challenge_name, output):
     """
@@ -36,11 +24,7 @@ def append_to_finished(finished_file, challenge_name, output):
     Args:
         finished_file: Path to the finished challenges file
         challenge_name: Challenge name to append
-<<<<<<< HEAD:challengeRunner/autoRun.py
         output: The output of d-cipher framework
-=======
-        output: The output of d-cipher framework 
->>>>>>> f9cde8f3904da1286e243c988d44fdc70659ffc4:autoRun.py
     """
     # Also check the full output for errors
     output = output.lower()
@@ -78,11 +62,7 @@ def append_to_finished(finished_file, challenge_name, output):
 
 def get_next_challenge(input_file):
     """
-<<<<<<< HEAD:challengeRunner/autoRun.py
     Get the next challenge from the input file and claim it atomically.
-=======
-    Get the next challenge from the input file and remove it atomically.
->>>>>>> f9cde8f3904da1286e243c988d44fdc70659ffc4:autoRun.py
 
     Args:
         input_file: Path to the input file
