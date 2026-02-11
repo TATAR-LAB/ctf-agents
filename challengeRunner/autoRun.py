@@ -12,10 +12,10 @@ import filterFinishedChallenges
 #import configs
 try:
     from autoRunConfig import logDir, config, split, input_file, finished_file
-except ImportError:
-    print("Error: autoRunConfig.py not found!")
+except ImportError as e:
     print("Copy autoRunConfig.template.py to autoRunConfig.py and customize it.")
-    exit(1)
+    print(f"Details: {e}")
+    sys.exit(1)
 
 def append_to_finished(finished_file, challenge_name, output):
     """
