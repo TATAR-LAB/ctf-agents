@@ -203,11 +203,6 @@ def main():
         # This prevents other processes from picking up the same challenge
         challenge_name = get_next_challenge(input_file)
 
-        #get_next_challenge returns none if it cannot locate an unclaimed file
-        if challenge_name is None:
-            print("\nNo more challenges to process")
-            break
-
         # get_next_challenge returns none if it cannot locate an unclaimed file
         if challenge_name is None:
             print("CHECKING FOR MORE CHALLENGES")
