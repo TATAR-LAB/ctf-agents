@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Runs 200 test challenges with ubuntu_tips.yaml configuration
+# Runs 200 test challenges with any configuration
 # Non-server challenges run in parallel, server challenges run sequentially
 #
 # > bash run_exp_parallel.sh [--parallel N] [--resume|--clean|--help]
@@ -207,7 +207,8 @@ run_challenge() {
     local start_time=$(date +%s)
     local exit_code=0
 
-    if timeout 1800 uv run run_dcipher.py \
+    if timeout 600 uv run run_dcipher.py \
+        --logdir "$LOG_DIR" \
         --config "$CONFIG" \
         --split "$SPLIT" \
         --challenge "$challenge" \
