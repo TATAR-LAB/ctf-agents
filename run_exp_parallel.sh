@@ -286,9 +286,6 @@ print_summary() {
     echo -e "${BLUE}║${NC} Passed:      ${GREEN}$passed${NC}"
     echo -e "${BLUE}║${NC} Failed:      ${RED}$failed${NC}"
     echo -e "${BLUE}║${NC} Skipped:     ${YELLOW}$skipped${NC}"
-    if [[ $run -gt 0 ]]; then
-        echo -e "${BLUE}║${NC} Success Rate: $(echo "scale=2; $passed * 100 / $run" | bc)%"
-    fi
     echo -e "${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}"
 }
 
