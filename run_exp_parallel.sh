@@ -133,6 +133,30 @@ check_prereqs() {
 }
 
 # -------------------------------------------------------------------
+# Docker image builds
+# -------------------------------------------------------------------
+build_docker_images() {
+    local script_dir
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+    if ! docker image inspect ctfenv:multiagent &>/dev/null; then
+        log INFO "Building ctfenv:multiagent image..."
+        docker build -t ctfenv:multiagent "${script_dir}/docker/multiagent"
+        log OK "ctfenv:multiagent image built"
+    else
+        log OK "ctfenv:multiagent image already exists"
+    fi
+
+    if ! docker image inspect ctfenv:kali &>/dev/null; then
+        log INFO "Building ctfenv:kali image..."
+        docker build -t ctfenv:kali "${script_dir}/docker/kali"
+        log OK "ctfenv:kali image built"
+    else
+        log OK "ctfenv:kali image already exists"
+    fi
+}
+
+# -------------------------------------------------------------------
 # Challenge classification
 # -------------------------------------------------------------------
 get_challenges() {
@@ -286,6 +310,10 @@ print_summary() {
     echo -e "${BLUE}║${NC} Passed:      ${GREEN}$passed${NC}"
     echo -e "${BLUE}║${NC} Failed:      ${RED}$failed${NC}"
     echo -e "${BLUE}║${NC} Skipped:     ${YELLOW}$skipped${NC}"
+    if [[ $run -gt 0 ]]; then
+        local pct=$((passed * 100 / run))
+        echo -e "${BLUE}║${NC} Success Rate: ${pct}%"
+    fi
     echo -e "${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}"
 }
 
@@ -300,11 +328,12 @@ main() {
     echo -e "${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 
+    mkdir -p "$LOG_DIR" "$(dirname "$RESULTS_FILE")"
     echo "=== Experiment started at $(date) ===" >> "$RESULTS_FILE"
     echo "Config: $CONFIG | Parallelism: $MAX_PARALLEL" >> "$RESULTS_FILE"
     touch "$COMPLETED_FILE" "$FAILED_FILE"
     check_prereqs
-    mkdir -p "$LOG_DIR"
+    build_docker_images
 
     # Classify all challenges
     log INFO "Classifying challenges (server vs non-server)..."
