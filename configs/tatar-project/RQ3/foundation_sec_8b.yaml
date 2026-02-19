@@ -1,10 +1,12 @@
-# RQ3: Model Selection - Foundation-Sec-1.1-8B-Instruct (Vertex AI)
-# Type: Security-specialized open source model (8B, Cisco)
-# Note: This is a pentest/security-focused model for H3.2 hypothesis
+# Kali + Generic (No Tips) + No AutoPrompt
+# Environment: Kali Linux Docker (requires kali docker image)
+# Prompts: Generic (without IMPORTANT TIPS section)
+# AutoPrompt: Disabled
 
 experiment:
-  max_cost: 1.0
+  max_cost: 5.0
   enable_autoprompt: False
+  use_kali: True # Use Kali Linux Docker image
 
 planner:
   max_rounds: 30
@@ -12,12 +14,14 @@ planner:
   temperature: 1.0
   top_p: 1.0
   max_tokens: 4096
-  prompt: ../../dcipher/prompts/base_planner_prompt.yaml
+  prompt: prompts/kali_generic_planner_prompt.yaml
   toolset:
     - run_command
     - submit_flag
     - giveup
     - delegate
+    - list_commands # List all available Kali tools
+    - lookup_command # Get detailed docs for a tool
 
 executor:
   max_rounds: 100
@@ -26,20 +30,22 @@ executor:
   top_p: 1.0
   max_tokens: 4096
   len_observations: 5
-  prompt: ../../dcipher/prompts/base_executor_prompt.yaml
+  prompt: prompts/kali_generic_executor_prompt.yaml
   toolset:
     - run_command
     - finish_task
     - disassemble
     - decompile
     - create_file
+    - list_commands # List all available Kali tools
+    - lookup_command # Get detailed docs for a tool
 
 autoprompter:
   max_rounds: 5
   model: fdtn-ai/Foundation-Sec-1.1-8B-Instruct
   temperature: 1.0
   max_tokens: 4096
-  prompt: ../../dcipher/prompts/autoprompt_prompt.yaml
+  prompt: prompts/kali_autoprompt_prompt.yaml
   toolset:
     - run_command
     - generate_prompt

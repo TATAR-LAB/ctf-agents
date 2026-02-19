@@ -43,14 +43,6 @@ D-CIPHER is a multi-agent system consisting of:
 > **Rationale:** Security-specialized tools (nmap, john, hashcat, burpsuite, etc.) may be necessary for certain challenge types that require specific capabilities not available in the base environment.
 >
 > - Replace Ubuntu-based Docker environment with Kali Linux, providing pre-installed penetration testing tools
-> - Integrate the [MCP-Kali Server](https://www.kali.org/tools/mcp-kali-server/) as an MCP tool, allowing LLMs to execute Kali security tools through the Model Context Protocol without replacing the base environment
->
-> **MCP-Kali Server Details:**
->
-> - Lightweight API bridge connecting LLMs to Kali Linux tools via MCP
-> - Enables execution of nmap, nxc, curl, wget, gobuster, and other security tools
-> - Can be installed via `sudo apt install mcp-kali-server` or Docker
-> - Supports CTF and bug bounty workflows natively
 >
 > **Metrics:** Solve rate comparison, tool usage patterns, failed tool invocation counts, successful tool invocations
 
@@ -156,7 +148,7 @@ D-CIPHER is a multi-agent system consisting of:
 ### Independent Variables
 
 1. **Model Selection:** 15+ different LLMs (including leaderboard models)
-2. **Environment:** Ubuntu vs. Kali Linux Docker vs. MCP-Kali Server
+2. **Environment:** Ubuntu vs. Kali Linux Docker
 3. **Model Combination:** Various Planner-Executor pairings
 4. **System Prompts:** Specialized vs. Generic prompts
 
@@ -184,12 +176,12 @@ D-CIPHER is a multi-agent system consisting of:
 
 Cost-performance tradeoffs are analyzed as part of the results rather than as a separate research question. Key metrics include:
 
-| Metric | Description |
-| ------ | ----------- |
+| Metric                        | Description                                  |
+| ----------------------------- | -------------------------------------------- |
 | **Cost per Solved Challenge** | Total API cost / number of challenges solved |
-| **Cost per Point Gained** | Total API cost / total CTF points earned |
-| **Solve Rate per Dollar** | Challenges solved / total cost |
-| **Token Efficiency** | Challenges solved / total tokens used |
+| **Cost per Point Gained**     | Total API cost / total CTF points earned     |
+| **Solve Rate per Dollar**     | Challenges solved / total cost               |
+| **Token Efficiency**          | Challenges solved / total tokens used        |
 
 This analysis will inform future work on orchestrator agents that dynamically allocate resources based on challenge difficulty.
 
@@ -200,7 +192,6 @@ This analysis will inform future work on orchestrator agents that dynamically al
 - Use appropriate statistical tests for comparisons
 
 ---
-
 
 ## Data Collection Template
 
@@ -216,7 +207,7 @@ For each experimental run, record:
 | Model (Executor)  | Executor model        | `gemini-3-flash`                      |
 | Config            | Configuration file    | `vertexai_config.yaml`                |
 | Auto-Prompter     | On/Off                | `False`                               |
-| Environment       | Docker/MCP setup      | `kali` / `ubuntu`        |
+| Environment       | Docker/MCP setup      | `kali` / `ubuntu`                     |
 | Prompt Type       | Specialized/Generic   | `specialized`                         |
 | Solved            | Success/Failure       | `True`                                |
 | Points            | Challenge points      | `50`                                  |
@@ -234,7 +225,7 @@ For each experimental run, record:
 ## Expected Contributions
 
 1. **Comprehensive Model Benchmark:** Systematic comparison of frontier and security-specialized LLMs on CTF challenges, aligned with CyBench leaderboard
-2. **Infrastructure Comparison:** Evidence-based comparison of Ubuntu vs. MCP-Kali Server approaches
+2. **Infrastructure Comparison:** Evidence-based comparison of Ubuntu vs. Kali Linux environments
 3. **Architecture Guidelines:** Best practices for multi-agent model combinations
 4. **Prompt Engineering Insights:** Impact analysis of specialized vs. generic prompts
 5. **Cost-Performance Analysis:** Practical guidance including cost-per-point metrics
@@ -258,5 +249,4 @@ For each experimental run, record:
 ### Tools
 
 - [x] Kali Linux Docker image
-- [x] MCP-Kali Server installation
 - [-] Logging and analysis scripts
