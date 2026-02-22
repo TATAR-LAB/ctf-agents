@@ -19,4 +19,8 @@ myenv
 llm_ctf/.DS_Store
 llm_ctf/toolset/.DS_Store
 keys.cfg
+
 /challengeRunner/autoRunConfig.py
+
+tatar-project-results/results/
+tatar-project-results/plots/
