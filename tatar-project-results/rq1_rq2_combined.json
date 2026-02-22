@@ -1,0 +1,383 @@
+{
+  "title": "RQ1 + RQ2: Infrastructure \u00d7 Prompt Engineering \u00d7 AutoPrompt",
+  "description": "2\u00d72\u00d72 factorial design: Environment (Ubuntu/Kali) \u00d7 Prompts (Generic/Tips) \u00d7 AutoPrompt (Off/On)",
+  "total_challenges": 200,
+  "categories": [
+    "crypto",
+    "forensics",
+    "misc",
+    "pwn",
+    "reverse",
+    "web"
+  ],
+  "conditions": {
+    "kali_generic": {
+      "label": "Kali + Generic",
+      "config": "kali_generic.yaml",
+      "environment": "kali",
+      "prompts": "generic",
+      "autoprompt": false,
+      "overall": {
+        "solved": 96,
+        "total": 200,
+        "solve_rate": 0.48,
+        "avg_cost": 0.4429,
+        "total_cost": 42.52
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 25,
+          "total": 52,
+          "solve_rate": 0.4808
+        },
+        "forensics": {
+          "solved": 8,
+          "total": 15,
+          "solve_rate": 0.5333
+        },
+        "misc": {
+          "solved": 16,
+          "total": 24,
+          "solve_rate": 0.6667
+        },
+        "pwn": {
+          "solved": 10,
+          "total": 39,
+          "solve_rate": 0.2564
+        },
+        "reverse": {
+          "solved": 29,
+          "total": 51,
+          "solve_rate": 0.5686
+        },
+        "web": {
+          "solved": 8,
+          "total": 19,
+          "solve_rate": 0.4211
+        }
+      }
+    },
+    "kali_generic_autoprompt": {
+      "label": "Kali + Generic + AP",
+      "config": "kali_generic_autoprompt.yaml",
+      "environment": "kali",
+      "prompts": "generic",
+      "autoprompt": true,
+      "overall": {
+        "solved": 79,
+        "total": 200,
+        "solve_rate": 0.395,
+        "avg_cost": 0.62,
+        "total_cost": 48.98
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 23,
+          "total": 52,
+          "solve_rate": 0.4423
+        },
+        "forensics": {
+          "solved": 5,
+          "total": 15,
+          "solve_rate": 0.3333
+        },
+        "misc": {
+          "solved": 13,
+          "total": 24,
+          "solve_rate": 0.5417
+        },
+        "pwn": {
+          "solved": 13,
+          "total": 39,
+          "solve_rate": 0.3333
+        },
+        "reverse": {
+          "solved": 17,
+          "total": 51,
+          "solve_rate": 0.3333
+        },
+        "web": {
+          "solved": 8,
+          "total": 19,
+          "solve_rate": 0.4211
+        }
+      }
+    },
+    "kali_tips": {
+      "label": "Kali + Tips",
+      "config": "kali_tips.yaml",
+      "environment": "kali",
+      "prompts": "tips",
+      "autoprompt": false,
+      "overall": {
+        "solved": 80,
+        "total": 200,
+        "solve_rate": 0.4,
+        "avg_cost": 0.466,
+        "total_cost": 37.28
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 19,
+          "total": 52,
+          "solve_rate": 0.3654
+        },
+        "forensics": {
+          "solved": 6,
+          "total": 15,
+          "solve_rate": 0.4
+        },
+        "misc": {
+          "solved": 10,
+          "total": 24,
+          "solve_rate": 0.4167
+        },
+        "pwn": {
+          "solved": 11,
+          "total": 39,
+          "solve_rate": 0.2821
+        },
+        "reverse": {
+          "solved": 26,
+          "total": 51,
+          "solve_rate": 0.5098
+        },
+        "web": {
+          "solved": 8,
+          "total": 19,
+          "solve_rate": 0.4211
+        }
+      }
+    },
+    "kali_tips_autoprompt": {
+      "label": "Kali + Tips + AP",
+      "config": "kali_tips_autoprompt.yaml",
+      "environment": "kali",
+      "prompts": "tips",
+      "autoprompt": true,
+      "overall": {
+        "solved": 0,
+        "total": 200,
+        "solve_rate": 0.0,
+        "avg_cost": 0.0,
+        "total_cost": 0
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 0,
+          "total": 52,
+          "solve_rate": 0.0
+        },
+        "forensics": {
+          "solved": 0,
+          "total": 15,
+          "solve_rate": 0.0
+        },
+        "misc": {
+          "solved": 0,
+          "total": 24,
+          "solve_rate": 0.0
+        },
+        "pwn": {
+          "solved": 0,
+          "total": 39,
+          "solve_rate": 0.0
+        },
+        "reverse": {
+          "solved": 0,
+          "total": 51,
+          "solve_rate": 0.0
+        },
+        "web": {
+          "solved": 0,
+          "total": 19,
+          "solve_rate": 0.0
+        }
+      }
+    },
+    "ubuntu_generic": {
+      "label": "Ubuntu + Generic",
+      "config": "ubuntu_generic.yaml",
+      "environment": "ubuntu",
+      "prompts": "generic",
+      "autoprompt": false,
+      "overall": {
+        "solved": 85,
+        "total": 200,
+        "solve_rate": 0.425,
+        "avg_cost": 0.4338,
+        "total_cost": 36.87
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 23,
+          "total": 52,
+          "solve_rate": 0.4423
+        },
+        "forensics": {
+          "solved": 3,
+          "total": 15,
+          "solve_rate": 0.2
+        },
+        "misc": {
+          "solved": 15,
+          "total": 24,
+          "solve_rate": 0.625
+        },
+        "pwn": {
+          "solved": 12,
+          "total": 39,
+          "solve_rate": 0.3077
+        },
+        "reverse": {
+          "solved": 25,
+          "total": 51,
+          "solve_rate": 0.4902
+        },
+        "web": {
+          "solved": 7,
+          "total": 19,
+          "solve_rate": 0.3684
+        }
+      }
+    },
+    "ubuntu_generic_autoprompt": {
+      "label": "Ubuntu + Generic + AP",
+      "config": "ubuntu_generic_autoprompt.yaml",
+      "environment": "ubuntu",
+      "prompts": "generic",
+      "autoprompt": true,
+      "overall": {
+        "solved": 61,
+        "total": 200,
+        "solve_rate": 0.305,
+        "avg_cost": 0.2465,
+        "total_cost": 15.04
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 20,
+          "total": 52,
+          "solve_rate": 0.3846
+        },
+        "forensics": {
+          "solved": 1,
+          "total": 15,
+          "solve_rate": 0.0667
+        },
+        "misc": {
+          "solved": 9,
+          "total": 24,
+          "solve_rate": 0.375
+        },
+        "pwn": {
+          "solved": 12,
+          "total": 39,
+          "solve_rate": 0.3077
+        },
+        "reverse": {
+          "solved": 11,
+          "total": 51,
+          "solve_rate": 0.2157
+        },
+        "web": {
+          "solved": 8,
+          "total": 19,
+          "solve_rate": 0.4211
+        }
+      }
+    },
+    "ubuntu_tips": {
+      "label": "Ubuntu + Tips",
+      "config": "ubuntu_tips.yaml",
+      "environment": "ubuntu",
+      "prompts": "tips",
+      "autoprompt": false,
+      "overall": {
+        "solved": 49,
+        "total": 200,
+        "solve_rate": 0.245,
+        "avg_cost": 0.1588,
+        "total_cost": 7.78
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 17,
+          "total": 52,
+          "solve_rate": 0.3269
+        },
+        "forensics": {
+          "solved": 1,
+          "total": 15,
+          "solve_rate": 0.0667
+        },
+        "misc": {
+          "solved": 9,
+          "total": 24,
+          "solve_rate": 0.375
+        },
+        "pwn": {
+          "solved": 8,
+          "total": 39,
+          "solve_rate": 0.2051
+        },
+        "reverse": {
+          "solved": 7,
+          "total": 51,
+          "solve_rate": 0.1373
+        },
+        "web": {
+          "solved": 7,
+          "total": 19,
+          "solve_rate": 0.3684
+        }
+      }
+    },
+    "ubuntu_tips_autoprompt": {
+      "label": "Ubuntu + Tips + AP",
+      "config": "ubuntu_tips_autoprompt.yaml",
+      "environment": "ubuntu",
+      "prompts": "tips",
+      "autoprompt": true,
+      "overall": {
+        "solved": 32,
+        "total": 200,
+        "solve_rate": 0.16,
+        "avg_cost": 0.0961,
+        "total_cost": 3.08
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 8,
+          "total": 52,
+          "solve_rate": 0.1538
+        },
+        "forensics": {
+          "solved": 1,
+          "total": 15,
+          "solve_rate": 0.0667
+        },
+        "misc": {
+          "solved": 7,
+          "total": 24,
+          "solve_rate": 0.2917
+        },
+        "pwn": {
+          "solved": 6,
+          "total": 39,
+          "solve_rate": 0.1538
+        },
+        "reverse": {
+          "solved": 3,
+          "total": 51,
+          "solve_rate": 0.0588
+        },
+        "web": {
+          "solved": 7,
+          "total": 19,
+          "solve_rate": 0.3684
+        }
+      }
+    }
+  }
+}

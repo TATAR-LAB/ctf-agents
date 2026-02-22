@@ -1,0 +1,81 @@
+{
+  "rq": "RQ3",
+  "title": "Model Selection \u2014 Which LLMs perform best on CTF challenges?",
+  "description": "Benchmark of models using Kali + specialized prompts on NYU CTF Bench (200 challenges)",
+  "environment": "kali",
+  "prompt_type": "specialized",
+  "total_challenges": 200,
+  "categories": [
+    "crypto",
+    "forensics",
+    "misc",
+    "pwn",
+    "reverse",
+    "web"
+  ],
+  "models": [
+    {
+      "name": "Gemini 3 Pro",
+      "provider": "Google",
+      "type": "frontier",
+      "config": "gemini3_pro.yaml",
+      "overall": {
+        "solved": 96,
+        "total": 200,
+        "solve_rate": 0.48,
+        "avg_cost": 0.4429,
+        "total_cost": 42.52
+      },
+      "by_category": {
+        "crypto": 0.4808,
+        "forensics": 0.5333,
+        "misc": 0.6667,
+        "pwn": 0.2564,
+        "reverse": 0.5686,
+        "web": 0.4211
+      }
+    },
+    {
+      "name": "GPT-5.2",
+      "provider": "OpenAI",
+      "type": "frontier",
+      "config": "gpt52.yaml",
+      "overall": {
+        "solved": 27,
+        "total": 200,
+        "solve_rate": 0.135,
+        "avg_cost": 0.2768,
+        "total_cost": 7.47
+      },
+      "by_category": {
+        "crypto": 0.1923,
+        "forensics": 0.0,
+        "misc": 0.25,
+        "pwn": 0.0513,
+        "reverse": 0.1176,
+        "web": 0.1579
+      }
+    },
+    {
+      "name": "Claude 4.5 Opus",
+      "provider": "Anthropic",
+      "type": "frontier",
+      "config": "opus.yaml",
+      "overall": {
+        "solved": 36,
+        "total": 200,
+        "solve_rate": 0.18,
+        "avg_cost": 0.5158,
+        "total_cost": 18.57
+      },
+      "by_category": {
+        "crypto": 0.1538,
+        "forensics": 0.2,
+        "misc": 0.2917,
+        "pwn": 0.0769,
+        "reverse": 0.2353,
+        "web": 0.1579
+      }
+    }
+  ]
+}
