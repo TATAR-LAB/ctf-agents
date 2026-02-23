@@ -149,3 +149,15 @@
   max_context: 128000
   cost_per_input_token: 2e-06
   cost_per_output_token: 6e-06
+
+"z-ai/glm-5":
+  backend: openrouter
+  max_context: 204800
+  cost_per_input_token: 95e-07
+  cost_per_output_token: 2.55e-06
+
+"moonshotai/kimi-k2.5":
+  backend: openrouter
+  max_context: 262144
+  cost_per_input_token: 45e-07
+  cost_per_output_token: 2.2e-06
