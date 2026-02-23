@@ -44,6 +44,8 @@
 
 "llama-3.3-70b-instruct":
   backend: vertexai
+  # backend: vertexai_endpoint
+  # endpoint_url: "https://mg-endpoint-de5d6bfe-3f12-455a-a4bc-1c72421cd592.us-central1-473120694576.prediction.vertexai.goog/v1beta1"
   max_context: 128000
   cost_per_input_token: 8.8e-07
   cost_per_output_token: 8.8e-07
@@ -116,17 +118,17 @@
   cost_per_output_token: 1.4e-05
 
 # DeepSeek via OpenRouter
-"deepseek/deepseek-r1":
+"deepseek/deepseek-r1-0528":
   backend: openrouter
-  max_context: 64000
-  cost_per_input_token: 5.5e-07
-  cost_per_output_token: 2.19e-06
+  max_context: 163840
+  cost_per_input_token: 4e-07
+  cost_per_output_token: 1.75e-06
 
-"deepseek/deepseek-v3":
+"deepseek/deepseek-v3.2":
   backend: openrouter
-  max_context: 64000
-  cost_per_input_token: 2.7e-07
-  cost_per_output_token: 1.1e-06
+  max_context: 163840
+  cost_per_input_token: 2.6e-07
+  cost_per_output_token: 3.8e-07
 
 # xAI Grok via OpenRouter
 "x-ai/grok-4":
