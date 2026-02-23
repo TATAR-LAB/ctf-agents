@@ -2,22 +2,14 @@
 
 ## Hypotheses
 - H4.1: Large Planner + Small Executor is cost-optimal
-- H4.2: Specialized executor models improve performance
 
 ## Experiment Conditions
 
 | Config | Planner | Executor | Purpose |
 |--------|---------|----------|---------|
 | `large_planner_small_executor_gemini.yaml` | Gemini 3 Pro | Gemini 3 Flash | H4.1: Cost optimization |
-| `large_planner_small_executor_claude.yaml` | Claude Sonnet | Claude Haiku | H4.1: Cost optimization |
-| `same_model_gemini_pro.yaml` | Gemini 3 Pro | Gemini 3 Pro | Baseline: Same model |
-| `same_model_claude_sonnet.yaml` | Claude Sonnet | Claude Sonnet | Baseline: Same model |
-| `specialized_executor_codex.yaml` | GPT-5.2 | GPT-5.2 Codex | H4.2: Code-specialized |
+| `small_planner_large_executor_gemini.yaml` | Gemini 3 Flash | Gemini 3 Pro | H4.1: Cost optimization |
 
-## Notes
-- All configs use dcipher prompts
-- Model combinations based on RQ3 findings (top performers)
-- Compare solve rate, cost, and token efficiency
 
 ## Usage
 
