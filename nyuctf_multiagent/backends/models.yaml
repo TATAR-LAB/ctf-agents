@@ -161,3 +161,9 @@
   max_context: 262144
   cost_per_input_token: 45e-07
   cost_per_output_token: 2.2e-06
+
+"qwen/qwen3.5-397b-a17b":
+  backend: openrouter
+  max_context: 262144
+  cost_per_input_token: 55e-07
+  cost_per_output_token: 3.5e-06
