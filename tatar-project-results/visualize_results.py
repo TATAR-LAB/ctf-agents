@@ -16,7 +16,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
-from matplotlib.colors import Normalize
+from matplotlib.colors import Normalize, PowerNorm
 
 # ── Styling ──────────────────────────────────────────────────────────
 CATEGORY_ORDER = ["crypto", "forensics", "misc", "pwn", "reverse", "web"]
@@ -36,6 +36,7 @@ PROVIDER_COLORS = {
     "OpenAI": "#10A37F", "Anthropic": "#D97706", "Google": "#4285F4",
     "DeepSeek": "#6366F1", "xAI": "#1D1D1F", "Meta": "#0668E1",
     "Alibaba": "#FF6A00", "Mistral": "#F24E1E", "Cisco": "#049FD9",
+    "Z-AI": "#00C853", "Moonshot": "#7C4DFF",
 }
 
 PALETTE = {
@@ -77,14 +78,89 @@ def rq1rq2_all_conditions_bar(data: dict, out: Path):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-    for bar, rate in zip(bars, rates):
+    total = data.get("total_challenges", 200)
+    for bar, rate, key in zip(bars, rates, sorted_keys):
+        solved = conds[key]["overall"]["solved"]
         ax.text(bar.get_width() + 0.4, bar.get_y() + bar.get_height()/2,
-                f"{rate:.1f}%", va="center", fontsize=10, fontweight="bold", color="#333")
+                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=10,
+                fontweight="bold", color="#333")
 
     fig.tight_layout()
     fig.savefig(out / "rq1rq2_all_conditions.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
     print(f"  ✓ {out / 'rq1rq2_all_conditions.png'}")
+
+
+# =====================================================================
+# RQ1+RQ2 CHART 1b: Stacked bar — exit reason breakdown
+# =====================================================================
+EXIT_REASON_ORDER = ["Solved", "MaxCost", "MaxRound", "Timeout", "Gave Up", "Error/Bug", "Not Attempted"]
+EXIT_REASON_COLORS = {
+    "Solved":        "#2ECC71",
+    "MaxCost":       "#E74C3C",
+    "MaxRound":      "#F39C12",
+    "Timeout":       "#3498DB",
+    "Gave Up":       "#9B59B6",
+    "Error/Bug":     "#95A5A6",
+    "Not Attempted": "#BDC3C7",
+}
+
+
+def rq1rq2_exit_reasons(data: dict, out: Path):
+    """Stacked horizontal bar: exit reason breakdown per condition."""
+    conds = data["conditions"]
+    if not conds:
+        print("  ⚠ No conditions available, skipping exit_reasons")
+        return
+
+    # Check that exit_reasons data exists
+    if not any("exit_reasons" in conds[k] for k in conds):
+        print("  ⚠ No exit_reasons data, re-run parse_results.py first")
+        return
+
+    total = data.get("total_challenges", 200)
+
+    # Sort by solve rate (highest at top)
+    sorted_keys = sorted(conds.keys(), key=lambda k: conds[k]["overall"]["solve_rate"])
+    labels = [conds[k]["label"] for k in sorted_keys]
+
+    # Only include categories that have non-zero counts
+    active_reasons = [r for r in EXIT_REASON_ORDER
+                      if any(conds[k].get("exit_reasons", {}).get(r, 0) > 0 for k in sorted_keys)]
+
+    fig, ax = plt.subplots(figsize=(14, max(4, len(labels) * 0.85)))
+
+    lefts = np.zeros(len(sorted_keys))
+    for reason in active_reasons:
+        widths = np.array([conds[k].get("exit_reasons", {}).get(reason, 0) for k in sorted_keys],
+                          dtype=float)
+        color = EXIT_REASON_COLORS.get(reason, "#888")
+        bars = ax.barh(labels, widths, left=lefts, color=color, edgecolor="white",
+                       linewidth=0.8, height=0.7, label=reason, zorder=3)
+
+        for i, (bar, w) in enumerate(zip(bars, widths)):
+            if w >= 8:
+                ax.text(lefts[i] + w / 2, bar.get_y() + bar.get_height() / 2,
+                        str(int(w)), ha="center", va="center", fontsize=9,
+                        fontweight="bold", color="white" if reason != "Not Attempted" else "#555")
+
+        lefts += widths
+
+    ax.set_xlabel("Number of Challenges", fontsize=12, fontweight="bold")
+    ax.set_title("RQ1+RQ2: Challenge Outcome Breakdown by Condition",
+                 fontsize=14, fontweight="bold", pad=12)
+    ax.set_xlim(0, total + 5)
+    ax.axvline(x=total, color="#ccc", linewidth=1, linestyle="--", zorder=1)
+    ax.grid(axis="x", alpha=0.2, zorder=0)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    ax.legend(loc="lower right", fontsize=9, ncol=2, framealpha=0.9)
+
+    fig.tight_layout()
+    fig.savefig(out / "rq1rq2_exit_reasons.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  ✓ {out / 'rq1rq2_exit_reasons.png'}")
 
 
 # =====================================================================
@@ -117,7 +193,9 @@ def rq1rq2_category_comparison(data: dict, out: Path):
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xticks(x)
     ax.set_xticklabels([c.capitalize() for c in cats], fontsize=11)
-    ax.set_ylim(0, max(45, 10))
+    all_rates = [r for key in keys for r in
+                 [conds[key]["by_category"].get(c, {}).get("solve_rate", 0) * 100 for c in cats]]
+    ax.set_ylim(0, max(all_rates) * 1.3 if all_rates else 45)
     ax.yaxis.set_major_formatter(mticker.PercentFormatter(decimals=0))
     ax.legend(fontsize=9, loc="upper right")
     ax.grid(axis="y", alpha=0.3, zorder=0)
@@ -192,7 +270,8 @@ def rq1rq2_heatmap_table(data: dict, out: Path):
     ax.invert_yaxis()
 
     cmap = plt.cm.Blues
-    norm = Normalize(vmin=0, vmax=45)
+    vmax = max(matrix.max(), max(overall_rates))
+    norm = PowerNorm(gamma=2.0, vmin=0, vmax=vmax)
 
     def col_x(col_idx):
         """Return (left, center, right) of a logical column."""
@@ -270,7 +349,7 @@ def rq1rq2_heatmap_table(data: dict, out: Path):
                                  facecolor=fc, edgecolor="white", linewidth=1.5, clip_on=False)
             ax.add_patch(rect)
 
-            text_color = "white" if val > 30 else "#1a1a2e"
+            text_color = "white" if val > 40 else "#1a1a2e"
             ax.text(cx, ri + 1, f"{val:.1f}%", ha="center", va="center",
                     fontsize=12, fontweight="bold", color=text_color)
 
@@ -284,9 +363,13 @@ def rq1rq2_heatmap_table(data: dict, out: Path):
                               facecolor=fc, edgecolor="white", linewidth=2, clip_on=False)
         ax.add_patch(rect)
 
-        text_color = "white" if ov > 30 else "#1a1a2e"
-        ax.text(cx, ri + 1, f"{ov:.1f}%", ha="center", va="center",
+        total = data.get("total_challenges", 200)
+        solved = conds[key_order[ri]]["overall"]["solved"]
+        text_color = "white" if ov > 40 else "#1a1a2e"
+        ax.text(cx, ri + 0.85, f"{ov:.1f}%", ha="center", va="center",
                 fontsize=13, fontweight="bold", color=text_color)
+        ax.text(cx, ri + 1.2, f"{solved}/{total}", ha="center", va="center",
+                fontsize=8, color=text_color, alpha=0.75)
 
     # ── Divider between Ubuntu and Kali groups ──
     if kali_start is not None and kali_start > 0:
@@ -299,6 +382,61 @@ def rq1rq2_heatmap_table(data: dict, out: Path):
     fig.savefig(out / "rq1rq2_heatmap_table.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
     print(f"  ✓ {out / 'rq1rq2_heatmap_table.png'}")
+
+
+# =====================================================================
+# RQ3 CHART 0: Stacked bar — exit reason breakdown per model
+# =====================================================================
+def rq3_exit_reasons(data: dict, out: Path):
+    """Stacked horizontal bar: exit reason breakdown per RQ3 model."""
+    models = sorted(data["models"], key=lambda m: m["overall"]["solve_rate"])
+    if not models:
+        print("  ⚠ No models available, skipping rq3_exit_reasons")
+        return
+
+    if not any("exit_reasons" in m for m in models):
+        print("  ⚠ No exit_reasons data in RQ3, re-run parse_results.py first")
+        return
+
+    total = data.get("total_challenges", 200)
+    labels = [m["name"] for m in models]
+
+    active_reasons = [r for r in EXIT_REASON_ORDER
+                      if any(m.get("exit_reasons", {}).get(r, 0) > 0 for m in models)]
+
+    fig, ax = plt.subplots(figsize=(14, max(4, len(labels) * 0.85)))
+
+    lefts = np.zeros(len(models))
+    for reason in active_reasons:
+        widths = np.array([m.get("exit_reasons", {}).get(reason, 0) for m in models],
+                          dtype=float)
+        color = EXIT_REASON_COLORS.get(reason, "#888")
+        bars = ax.barh(labels, widths, left=lefts, color=color, edgecolor="white",
+                       linewidth=0.8, height=0.7, label=reason, zorder=3)
+
+        for i, (bar, w) in enumerate(zip(bars, widths)):
+            if w >= 8:
+                ax.text(lefts[i] + w / 2, bar.get_y() + bar.get_height() / 2,
+                        str(int(w)), ha="center", va="center", fontsize=9,
+                        fontweight="bold", color="white" if reason != "Not Attempted" else "#555")
+
+        lefts += widths
+
+    ax.set_xlabel("Number of Challenges", fontsize=12, fontweight="bold")
+    ax.set_title("RQ3: Challenge Outcome Breakdown by Model",
+                 fontsize=14, fontweight="bold", pad=12)
+    ax.set_xlim(0, total + 5)
+    ax.axvline(x=total, color="#ccc", linewidth=1, linestyle="--", zorder=1)
+    ax.grid(axis="x", alpha=0.2, zorder=0)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    ax.legend(loc="lower right", fontsize=9, ncol=2, framealpha=0.9)
+
+    fig.tight_layout()
+    fig.savefig(out / "rq3_exit_reasons.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  ✓ {out / 'rq3_exit_reasons.png'}")
 
 
 # =====================================================================
@@ -327,9 +465,12 @@ def rq3_horizontal_bar(data: dict, out: Path):
     ax.spines["right"].set_visible(False)
     ax.tick_params(axis="y", labelsize=10)
 
-    for bar, rate in zip(bars, rates):
+    total = data.get("total_challenges", 200)
+    for bar, rate, m in zip(bars, rates, models):
+        solved = m["overall"]["solved"]
         ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f"{rate:.1f}%", va="center", fontsize=9, fontweight="bold", color="#333")
+                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=9,
+                fontweight="bold", color="#333")
 
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=c, label=p) for p, c in PROVIDER_COLORS.items()
@@ -418,7 +559,8 @@ def rq3_heatmap_table(data: dict, out: Path):
     ax.invert_yaxis()
 
     cmap = plt.cm.YlGnBu
-    norm = Normalize(vmin=0, vmax=50)
+    vmax = max(matrix.max(), max(overall_rates)) * 1.15
+    norm = Normalize(vmin=0, vmax=vmax)
 
     def col_x(col_idx):
         if col_idx == 0:
@@ -484,9 +626,13 @@ def rq3_heatmap_table(data: dict, out: Path):
                               facecolor=fc, edgecolor="white", linewidth=2, clip_on=False)
         ax.add_patch(rect)
 
+        total = data.get("total_challenges", 200)
+        solved = models_sorted[ri]["overall"]["solved"]
         text_color = "white" if ov > 30 else "black"
-        ax.text(cx, ri + 1, f"{ov:.1f}%", ha="center", va="center",
+        ax.text(cx, ri + 0.85, f"{ov:.1f}%", ha="center", va="center",
                 fontsize=12, fontweight="bold", color=text_color)
+        ax.text(cx, ri + 1.2, f"{solved}/{total}", ha="center", va="center",
+                fontsize=8, color=text_color, alpha=0.75)
 
     fig.suptitle("RQ3: Solve Rates by Model × Category",
                  fontsize=15, fontweight="bold", x=0.5, y=0.97, ha="center")
@@ -535,6 +681,238 @@ def rq3_model_type_comparison(data: dict, out: Path):
 
 
 # =====================================================================
+# RQ4 CHART: Architecture comparison — bar chart
+# =====================================================================
+RQ4_COLORS = {
+    "pro_plan_flash_exec": "#2ECC71",
+    "flash_plan_pro_exec": "#E67E22",
+    "baseline_gemini3_pro": "#4285F4",
+    "baseline_gemini3_flash": "#87CEEB",
+}
+
+
+def rq4_architecture_bar(data: dict, out: Path):
+    """RQ4 – Bar chart comparing planner/executor combinations."""
+    conds = data.get("conditions", {})
+    if not conds:
+        print("  ⚠ No RQ4 conditions available, skipping")
+        return
+
+    sorted_keys = sorted(conds.keys(), key=lambda k: conds[k]["overall"]["solve_rate"])
+    labels = [conds[k]["label"] for k in sorted_keys]
+    rates = [conds[k]["overall"]["solve_rate"] * 100 for k in sorted_keys]
+    colors = [RQ4_COLORS.get(k, "#888") for k in sorted_keys]
+
+    fig, ax = plt.subplots(figsize=(12, max(3.5, len(labels) * 0.9)))
+    bars = ax.barh(labels, rates, color=colors, edgecolor="white", linewidth=1, height=0.6, zorder=3)
+
+    ax.set_xlabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_title("RQ4: Planner/Executor Architecture Comparison",
+                 fontsize=14, fontweight="bold", pad=12)
+    max_rate = max(rates) if rates else 50
+    ax.set_xlim(0, max_rate * 1.35)
+    ax.grid(axis="x", alpha=0.3, zorder=0)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    total = data.get("total_challenges", 200)
+    for bar, rate, key in zip(bars, rates, sorted_keys):
+        solved = conds[key]["overall"]["solved"]
+        detail = f"P: {conds[key]['planner']}  E: {conds[key]['executor']}"
+        ax.text(bar.get_width() + 0.4, bar.get_y() + bar.get_height() / 2,
+                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=10,
+                fontweight="bold", color="#333")
+
+    fig.tight_layout()
+    fig.savefig(out / "rq4_architecture.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  ✓ {out / 'rq4_architecture.png'}")
+
+
+def rq4_category_heatmap(data: dict, out: Path):
+    """RQ4 – Heatmap: planner/executor combos × categories."""
+    conds = data.get("conditions", {})
+    cats = CATEGORY_ORDER
+    if not conds:
+        return
+
+    key_order = sorted(conds.keys(), key=lambda k: conds[k]["overall"]["solve_rate"], reverse=True)
+    n_rows = len(key_order)
+    n_cats = len(cats)
+
+    matrix = np.array([
+        [conds[k]["by_category"][c]["solve_rate"] * 100 for c in cats]
+        for k in key_order
+    ])
+    overall_rates = [conds[k]["overall"]["solve_rate"] * 100 for k in key_order]
+
+    name_col_w = 4.5
+    heat_col_w = 1.8
+    total_cols = 1 + n_cats + 1
+    total_w = name_col_w + (n_cats + 1) * heat_col_w
+    fig_w = total_w * 0.85 + 0.5
+    fig_h = n_rows * 0.7 + 1.8
+
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+    ax.set_xlim(0, total_w)
+    ax.set_ylim(-0.5, n_rows + 0.5)
+    ax.axis("off")
+    ax.invert_yaxis()
+
+    cmap = plt.cm.YlGnBu
+    vmax = max(matrix.max(), max(overall_rates)) * 1.15 if overall_rates else 50
+    norm = Normalize(vmin=0, vmax=vmax)
+
+    def col_x(col_idx):
+        if col_idx == 0:
+            return 0, name_col_w / 2, name_col_w
+        x = name_col_w + (col_idx - 1) * heat_col_w
+        return x, x + heat_col_w / 2, x + heat_col_w
+
+    header_labels = ["Configuration"] + [c.capitalize() for c in cats] + ["Overall"]
+    for ci in range(total_cols):
+        left, cx, right = col_x(ci)
+        w = name_col_w if ci == 0 else heat_col_w
+        if ci == 0:
+            fc, tc = "#1a3a5c", "white"
+        elif ci == total_cols - 1:
+            fc, tc = "#1a5c3a", "white"
+        else:
+            fc, tc = "#2c5f8a", "white"
+        rect = plt.Rectangle((left, -0.5), w, 1, facecolor=fc, edgecolor="white",
+                              linewidth=1.5, clip_on=False)
+        ax.add_patch(rect)
+        ax.text(cx, 0, header_labels[ci], ha="center", va="center",
+                fontsize=11, fontweight="bold", color=tc)
+
+    for ri, k in enumerate(key_order):
+        y_top = ri + 0.5
+        left, cx, right = col_x(0)
+        bg = "#e0ecf8" if ri % 2 == 0 else "#f0f5fc"
+        rect = plt.Rectangle((left, y_top), name_col_w, 1,
+                              facecolor=bg, edgecolor="#ccc", linewidth=0.8, clip_on=False)
+        ax.add_patch(rect)
+        ax.text(cx, ri + 1, conds[k]["label"], ha="center", va="center",
+                fontsize=10, fontweight="bold", color="#1a1a2e")
+
+        for cj in range(n_cats):
+            ci = 1 + cj
+            left, cx, right = col_x(ci)
+            val = matrix[ri, cj]
+            fc = cmap(norm(val))
+            rect = plt.Rectangle((left, y_top), heat_col_w, 1,
+                                 facecolor=fc, edgecolor="white", linewidth=1.5, clip_on=False)
+            ax.add_patch(rect)
+            text_color = "white" if val > 30 else "black"
+            ax.text(cx, ri + 1, f"{val:.1f}%", ha="center", va="center",
+                    fontsize=10, fontweight="bold", color=text_color)
+
+        ci_overall = 1 + n_cats
+        left, cx, right = col_x(ci_overall)
+        ov = overall_rates[ri]
+        fc = cmap(norm(ov))
+        rect = plt.Rectangle((left, y_top), heat_col_w, 1,
+                              facecolor=fc, edgecolor="white", linewidth=2, clip_on=False)
+        ax.add_patch(rect)
+        total = data.get("total_challenges", 200)
+        solved = conds[k]["overall"]["solved"]
+        text_color = "white" if ov > 30 else "black"
+        ax.text(cx, ri + 0.85, f"{ov:.1f}%", ha="center", va="center",
+                fontsize=12, fontweight="bold", color=text_color)
+        ax.text(cx, ri + 1.2, f"{solved}/{total}", ha="center", va="center",
+                fontsize=8, color=text_color, alpha=0.75)
+
+    fig.suptitle("RQ4: Planner/Executor Architecture × Category",
+                 fontsize=15, fontweight="bold", x=0.5, y=0.97, ha="center")
+    fig.savefig(out / "rq4_heatmap_table.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  ✓ {out / 'rq4_heatmap_table.png'}")
+
+
+# =====================================================================
+# RQ5 CHART: Reproducibility — solve rate across runs
+# =====================================================================
+def rq5_reproducibility_chart(data: dict, out: Path):
+    """RQ5 – Line/bar chart showing solve rate variance across runs."""
+    runs = data.get("runs", [])
+    if len(runs) < 2:
+        print("  ⚠ Need at least 2 runs for reproducibility chart, skipping")
+        return
+
+    run_labels = [f"Run {r['run']}" for r in runs]
+    rates = [r["overall"]["solve_rate"] * 100 for r in runs]
+    mean_rate = np.mean(rates)
+    std_rate = np.std(rates)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    x = range(len(runs))
+    bars = ax.bar(x, rates, color="#4285F4", edgecolor="white", linewidth=1, zorder=3)
+    ax.axhline(y=mean_rate, color="#E74C3C", linewidth=2, linestyle="--", zorder=4,
+               label=f"Mean: {mean_rate:.1f}% ± {std_rate:.1f}%")
+
+    ax.fill_between([-0.5, len(runs) - 0.5], mean_rate - std_rate, mean_rate + std_rate,
+                    alpha=0.15, color="#E74C3C", zorder=2)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(run_labels, fontsize=11)
+    ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_title(f"RQ5: Reproducibility — {data.get('model', 'Model')}",
+                 fontsize=14, fontweight="bold", pad=12)
+    ax.set_xlim(-0.5, len(runs) - 0.5)
+    ax.grid(axis="y", alpha=0.3, zorder=0)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.legend(fontsize=11, loc="upper right")
+
+    total = data.get("total_challenges", 200)
+    for bar, rate, run in zip(bars, rates, runs):
+        solved = run["overall"]["solved"]
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
+                f"{rate:.1f}%\n({solved}/{total})", ha="center", va="bottom",
+                fontsize=9, fontweight="bold", color="#333")
+
+    fig.tight_layout()
+    fig.savefig(out / "rq5_reproducibility.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  ✓ {out / 'rq5_reproducibility.png'}")
+
+
+def rq5_category_variance(data: dict, out: Path):
+    """RQ5 – Grouped bar: per-category solve rates across runs."""
+    runs = data.get("runs", [])
+    cats = CATEGORY_ORDER
+    if len(runs) < 2:
+        return
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    x = np.arange(len(cats))
+    n = len(runs)
+    w = 0.8 / n
+    cmap_runs = plt.cm.Blues(np.linspace(0.4, 0.9, n))
+
+    for i, run in enumerate(runs):
+        rates = [run["by_category"].get(c, 0) * 100 for c in cats]
+        offset = (i - n / 2 + 0.5) * w
+        ax.bar(x + offset, rates, w, label=f"Run {run['run']}",
+               color=cmap_runs[i], edgecolor="white", linewidth=0.8, zorder=3)
+
+    ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_title("RQ5: Per-Category Solve Rates Across Runs",
+                 fontsize=14, fontweight="bold", pad=12)
+    ax.set_xticks(x)
+    ax.set_xticklabels([c.capitalize() for c in cats], fontsize=11)
+    ax.legend(fontsize=9)
+    ax.grid(axis="y", alpha=0.3, zorder=0)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    fig.tight_layout()
+    fig.savefig(out / "rq5_category_variance.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  ✓ {out / 'rq5_category_variance.png'}")
+
+
+# =====================================================================
 # MAIN
 # =====================================================================
 def main():
@@ -550,33 +928,55 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
 
     print("Loading experiment data...")
-    rq12_path = results / "rq1_rq2_combined.json"
-    rq3_path  = results / "rq3_models.json"
-
-    if not rq12_path.exists() or not rq3_path.exists():
-        print("⚠ JSON files not found. Run parse_results.py first:")
-        print("    uv run tatar-project-results/parse_results.py")
-        return
-
-    rq12 = load_json(rq12_path)
-    rq3  = load_json(rq3_path)
-
-    print(f"\nGenerating plots → {out}/\n")
 
     # RQ1+RQ2
-    n_conds = len(rq12.get("conditions", {}))
-    print(f"RQ1+RQ2: {n_conds} conditions available")
-    rq1rq2_all_conditions_bar(rq12, out)
-    rq1rq2_category_comparison(rq12, out)
-    rq1rq2_heatmap_table(rq12, out)
+    rq12_path = results / "rq1_rq2_combined.json"
+    if rq12_path.exists():
+        rq12 = load_json(rq12_path)
+        n_conds = len(rq12.get("conditions", {}))
+        print(f"\nRQ1+RQ2: {n_conds} conditions available")
+        rq1rq2_all_conditions_bar(rq12, out)
+        rq1rq2_exit_reasons(rq12, out)
+        rq1rq2_category_comparison(rq12, out)
+        rq1rq2_heatmap_table(rq12, out)
+    else:
+        print("\n⚠ rq1_rq2_combined.json not found, skipping RQ1+RQ2 plots")
 
     # RQ3
-    n_models = len(rq3.get("models", []))
-    print(f"\nRQ3: {n_models} models available")
-    rq3_horizontal_bar(rq3, out)
-    rq3_cost_vs_solve(rq3, out)
-    rq3_heatmap_table(rq3, out)
-    rq3_model_type_comparison(rq3, out)
+    rq3_path = results / "rq3_models.json"
+    if rq3_path.exists():
+        rq3 = load_json(rq3_path)
+        n_models = len(rq3.get("models", []))
+        print(f"\nRQ3: {n_models} models available")
+        rq3_exit_reasons(rq3, out)
+        rq3_horizontal_bar(rq3, out)
+        rq3_cost_vs_solve(rq3, out)
+        rq3_heatmap_table(rq3, out)
+        rq3_model_type_comparison(rq3, out)
+    else:
+        print("\n⚠ rq3_models.json not found, skipping RQ3 plots")
+
+    # RQ4
+    rq4_path = results / "rq4_architecture.json"
+    if rq4_path.exists():
+        rq4 = load_json(rq4_path)
+        n_conds = len(rq4.get("conditions", {}))
+        print(f"\nRQ4: {n_conds} conditions available")
+        rq4_architecture_bar(rq4, out)
+        rq4_category_heatmap(rq4, out)
+    else:
+        print("\n⚠ rq4_architecture.json not found, skipping RQ4 plots")
+
+    # RQ5
+    rq5_path = results / "rq5_reproducibility.json"
+    if rq5_path.exists():
+        rq5 = load_json(rq5_path)
+        n_runs = len(rq5.get("runs", []))
+        print(f"\nRQ5: {n_runs} runs available")
+        rq5_reproducibility_chart(rq5, out)
+        rq5_category_variance(rq5, out)
+    else:
+        print("\n⚠ rq5_reproducibility.json not found, skipping RQ5 plots")
 
     print(f"\n✅ Done! {len(list(out.glob('*.png')))} plots saved to {out}/")
 

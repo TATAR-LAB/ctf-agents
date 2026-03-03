@@ -18,43 +18,52 @@
       "prompts": "generic",
       "autoprompt": false,
       "overall": {
-        "solved": 96,
+        "solved": 104,
         "total": 200,
-        "solve_rate": 0.48,
-        "avg_cost": 0.4429,
-        "total_cost": 42.52
+        "solve_rate": 0.52,
+        "avg_cost": 0.4253,
+        "total_cost": 44.23
       },
       "by_category": {
         "crypto": {
-          "solved": 25,
+          "solved": 28,
           "total": 52,
-          "solve_rate": 0.4808
+          "solve_rate": 0.5385
         },
         "forensics": {
-          "solved": 8,
+          "solved": 7,
           "total": 15,
-          "solve_rate": 0.5333
+          "solve_rate": 0.4667
         },
         "misc": {
-          "solved": 16,
+          "solved": 17,
           "total": 24,
-          "solve_rate": 0.6667
+          "solve_rate": 0.7083
         },
         "pwn": {
-          "solved": 10,
+          "solved": 13,
           "total": 39,
-          "solve_rate": 0.2564
+          "solve_rate": 0.3333
         },
         "reverse": {
-          "solved": 29,
+          "solved": 30,
           "total": 51,
-          "solve_rate": 0.5686
+          "solve_rate": 0.5882
         },
         "web": {
-          "solved": 8,
+          "solved": 9,
           "total": 19,
-          "solve_rate": 0.4211
+          "solve_rate": 0.4737
         }
+      },
+      "exit_reasons": {
+        "Solved": 104,
+        "MaxCost": 30,
+        "MaxRound": 41,
+        "Timeout": 22,
+        "Gave Up": 1,
+        "Error/Bug": 2,
+        "Not Attempted": 0
       }
     },
     "kali_generic_autoprompt": {
@@ -101,6 +110,15 @@
           "total": 19,
           "solve_rate": 0.4211
         }
+      },
+      "exit_reasons": {
+        "Solved": 79,
+        "MaxCost": 27,
+        "MaxRound": 52,
+        "Timeout": 0,
+        "Gave Up": 11,
+        "Error/Bug": 0,
+        "Not Attempted": 31
       }
     },
     "kali_tips": {
@@ -147,6 +165,15 @@
           "total": 19,
           "solve_rate": 0.4211
         }
+      },
+      "exit_reasons": {
+        "Solved": 80,
+        "MaxCost": 26,
+        "MaxRound": 25,
+        "Timeout": 0,
+        "Gave Up": 1,
+        "Error/Bug": 67,
+        "Not Attempted": 1
       }
     },
     "kali_tips_autoprompt": {
@@ -156,43 +183,52 @@
       "prompts": "tips",
       "autoprompt": true,
       "overall": {
-        "solved": 0,
+        "solved": 97,
         "total": 200,
-        "solve_rate": 0.0,
-        "avg_cost": 0.0,
-        "total_cost": 0
+        "solve_rate": 0.485,
+        "avg_cost": 0.6817,
+        "total_cost": 66.12
       },
       "by_category": {
         "crypto": {
-          "solved": 0,
+          "solved": 31,
           "total": 52,
-          "solve_rate": 0.0
+          "solve_rate": 0.5962
         },
         "forensics": {
-          "solved": 0,
+          "solved": 5,
           "total": 15,
-          "solve_rate": 0.0
+          "solve_rate": 0.3333
         },
         "misc": {
-          "solved": 0,
+          "solved": 15,
           "total": 24,
-          "solve_rate": 0.0
+          "solve_rate": 0.625
         },
         "pwn": {
-          "solved": 0,
+          "solved": 12,
           "total": 39,
-          "solve_rate": 0.0
+          "solve_rate": 0.3077
         },
         "reverse": {
-          "solved": 0,
+          "solved": 26,
           "total": 51,
-          "solve_rate": 0.0
+          "solve_rate": 0.5098
         },
         "web": {
-          "solved": 0,
+          "solved": 8,
           "total": 19,
-          "solve_rate": 0.0
+          "solve_rate": 0.4211
         }
+      },
+      "exit_reasons": {
+        "Solved": 97,
+        "MaxCost": 28,
+        "MaxRound": 55,
+        "Timeout": 0,
+        "Gave Up": 4,
+        "Error/Bug": 0,
+        "Not Attempted": 16
       }
     },
     "ubuntu_generic": {
@@ -239,6 +275,15 @@
           "total": 19,
           "solve_rate": 0.3684
         }
+      },
+      "exit_reasons": {
+        "Solved": 85,
+        "MaxCost": 15,
+        "MaxRound": 32,
+        "Timeout": 0,
+        "Gave Up": 2,
+        "Error/Bug": 0,
+        "Not Attempted": 66
       }
     },
     "ubuntu_generic_autoprompt": {
@@ -285,6 +330,15 @@
           "total": 19,
           "solve_rate": 0.4211
         }
+      },
+      "exit_reasons": {
+        "Solved": 61,
+        "MaxCost": 0,
+        "MaxRound": 16,
+        "Timeout": 0,
+        "Gave Up": 1,
+        "Error/Bug": 0,
+        "Not Attempted": 122
       }
     },
     "ubuntu_tips": {
@@ -297,7 +351,7 @@
         "solved": 49,
         "total": 200,
         "solve_rate": 0.245,
-        "avg_cost": 0.1588,
+        "avg_cost": 0.1589,
         "total_cost": 7.78
       },
       "by_category": {
@@ -331,6 +385,15 @@
           "total": 19,
           "solve_rate": 0.3684
         }
+      },
+      "exit_reasons": {
+        "Solved": 49,
+        "MaxCost": 0,
+        "MaxRound": 2,
+        "Timeout": 112,
+        "Gave Up": 0,
+        "Error/Bug": 37,
+        "Not Attempted": 0
       }
     },
     "ubuntu_tips_autoprompt": {
@@ -377,6 +440,15 @@
           "total": 19,
           "solve_rate": 0.3684
         }
+      },
+      "exit_reasons": {
+        "Solved": 32,
+        "MaxCost": 0,
+        "MaxRound": 3,
+        "Timeout": 111,
+        "Gave Up": 0,
+        "Error/Bug": 54,
+        "Not Attempted": 0
       }
     }
   }

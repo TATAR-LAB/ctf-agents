@@ -1,9 +1,9 @@
 {
   "rq": "RQ3",
   "title": "Model Selection \u2014 Which LLMs perform best on CTF challenges?",
-  "description": "Benchmark of models using Kali + specialized prompts on NYU CTF Bench (200 challenges)",
+  "description": "Benchmark of models using Kali + generic prompts on NYU CTF Bench (200 challenges)",
   "environment": "kali",
-  "prompt_type": "specialized",
+  "prompt_type": "generic",
   "total_challenges": 200,
   "categories": [
     "crypto",
@@ -15,24 +15,153 @@
   ],
   "models": [
     {
+      "name": "DeepSeek-R1",
+      "provider": "DeepSeek",
+      "type": "reasoning",
+      "config": "deepseek_r1.yaml",
+      "overall": {
+        "solved": 8,
+        "total": 200,
+        "solve_rate": 0.04,
+        "avg_cost": 0.0164,
+        "total_cost": 0.13
+      },
+      "by_category": {
+        "crypto": 0.0,
+        "forensics": 0.0,
+        "misc": 0.0833,
+        "pwn": 0.0256,
+        "reverse": 0.0588,
+        "web": 0.1053
+      },
+      "exit_reasons": {
+        "Solved": 8,
+        "MaxCost": 0,
+        "MaxRound": 0,
+        "Timeout": 188,
+        "Gave Up": 0,
+        "Error/Bug": 4,
+        "Not Attempted": 0
+      }
+    },
+    {
+      "name": "DeepSeek-V3",
+      "provider": "DeepSeek",
+      "type": "frontier",
+      "config": "deepseek_v3.yaml",
+      "overall": {
+        "solved": 13,
+        "total": 200,
+        "solve_rate": 0.065,
+        "avg_cost": 0.0145,
+        "total_cost": 0.19
+      },
+      "by_category": {
+        "crypto": 0.0192,
+        "forensics": 0.0667,
+        "misc": 0.125,
+        "pwn": 0.0769,
+        "reverse": 0.098,
+        "web": 0.0
+      },
+      "exit_reasons": {
+        "Solved": 13,
+        "MaxCost": 0,
+        "MaxRound": 1,
+        "Timeout": 179,
+        "Gave Up": 0,
+        "Error/Bug": 7,
+        "Not Attempted": 0
+      }
+    },
+    {
+      "name": "Gemini 3 Flash",
+      "provider": "Google",
+      "type": "small",
+      "config": "gemini3_flash.yaml",
+      "overall": {
+        "solved": 54,
+        "total": 200,
+        "solve_rate": 0.27,
+        "avg_cost": 0.0499,
+        "total_cost": 2.69
+      },
+      "by_category": {
+        "crypto": 0.3654,
+        "forensics": 0.1333,
+        "misc": 0.2917,
+        "pwn": 0.2821,
+        "reverse": 0.1765,
+        "web": 0.3158
+      },
+      "exit_reasons": {
+        "Solved": 54,
+        "MaxCost": 0,
+        "MaxRound": 34,
+        "Timeout": 89,
+        "Gave Up": 1,
+        "Error/Bug": 22,
+        "Not Attempted": 0
+      }
+    },
+    {
       "name": "Gemini 3 Pro",
       "provider": "Google",
       "type": "frontier",
       "config": "gemini3_pro.yaml",
       "overall": {
-        "solved": 96,
+        "solved": 104,
         "total": 200,
-        "solve_rate": 0.48,
-        "avg_cost": 0.4429,
-        "total_cost": 42.52
+        "solve_rate": 0.52,
+        "avg_cost": 0.4253,
+        "total_cost": 44.23
       },
       "by_category": {
-        "crypto": 0.4808,
-        "forensics": 0.5333,
-        "misc": 0.6667,
-        "pwn": 0.2564,
-        "reverse": 0.5686,
-        "web": 0.4211
+        "crypto": 0.5385,
+        "forensics": 0.4667,
+        "misc": 0.7083,
+        "pwn": 0.3333,
+        "reverse": 0.5882,
+        "web": 0.4737
+      },
+      "exit_reasons": {
+        "Solved": 104,
+        "MaxCost": 30,
+        "MaxRound": 41,
+        "Timeout": 22,
+        "Gave Up": 1,
+        "Error/Bug": 2,
+        "Not Attempted": 0
+      }
+    },
+    {
+      "name": "GLM-5",
+      "provider": "Z-AI",
+      "type": "frontier",
+      "config": "glm5.yaml",
+      "overall": {
+        "solved": 39,
+        "total": 200,
+        "solve_rate": 0.195,
+        "avg_cost": 0.5663,
+        "total_cost": 22.09
+      },
+      "by_category": {
+        "crypto": 0.1346,
+        "forensics": 0.2,
+        "misc": 0.2917,
+        "pwn": 0.1538,
+        "reverse": 0.2353,
+        "web": 0.2105
+      },
+      "exit_reasons": {
+        "Solved": 39,
+        "MaxCost": 5,
+        "MaxRound": 7,
+        "Timeout": 123,
+        "Gave Up": 0,
+        "Error/Bug": 26,
+        "Not Attempted": 0
       }
     },
     {
@@ -54,27 +183,105 @@
         "pwn": 0.0513,
         "reverse": 0.1176,
         "web": 0.1579
+      },
+      "exit_reasons": {
+        "Solved": 27,
+        "MaxCost": 0,
+        "MaxRound": 2,
+        "Timeout": 83,
+        "Gave Up": 0,
+        "Error/Bug": 88,
+        "Not Attempted": 0
       }
     },
     {
-      "name": "Claude 4.5 Opus",
-      "provider": "Anthropic",
-      "type": "frontier",
-      "config": "opus.yaml",
+      "name": "GPT-5.2-Codex",
+      "provider": "OpenAI",
+      "type": "code-specialized",
+      "config": "gpt52_codex.yaml",
       "overall": {
         "solved": 36,
         "total": 200,
         "solve_rate": 0.18,
-        "avg_cost": 0.5158,
-        "total_cost": 18.57
+        "avg_cost": 0.2565,
+        "total_cost": 9.23
       },
       "by_category": {
-        "crypto": 0.1538,
-        "forensics": 0.2,
-        "misc": 0.2917,
-        "pwn": 0.0769,
-        "reverse": 0.2353,
-        "web": 0.1579
+        "crypto": 0.2308,
+        "forensics": 0.0667,
+        "misc": 0.25,
+        "pwn": 0.2051,
+        "reverse": 0.098,
+        "web": 0.2105
+      },
+      "exit_reasons": {
+        "Solved": 36,
+        "MaxCost": 0,
+        "MaxRound": 0,
+        "Timeout": 106,
+        "Gave Up": 0,
+        "Error/Bug": 58,
+        "Not Attempted": 0
+      }
+    },
+    {
+      "name": "Llama 3.3 70B",
+      "provider": "Meta",
+      "type": "open-source",
+      "config": "llama33_70b.yaml",
+      "overall": {
+        "solved": 5,
+        "total": 200,
+        "solve_rate": 0.025,
+        "avg_cost": 0.0064,
+        "total_cost": 0.03
+      },
+      "by_category": {
+        "crypto": 0.0,
+        "forensics": 0.0,
+        "misc": 0.125,
+        "pwn": 0.0,
+        "reverse": 0.0392,
+        "web": 0.0
+      },
+      "exit_reasons": {
+        "Solved": 5,
+        "MaxCost": 0,
+        "MaxRound": 13,
+        "Timeout": 17,
+        "Gave Up": 160,
+        "Error/Bug": 5,
+        "Not Attempted": 0
+      }
+    },
+    {
+      "name": "Qwen 3.5 397B-A17B",
+      "provider": "Alibaba",
+      "type": "open-source",
+      "config": "qwen35.yaml",
+      "overall": {
+        "solved": 7,
+        "total": 200,
+        "solve_rate": 0.035,
+        "avg_cost": 0.198,
+        "total_cost": 1.39
+      },
+      "by_category": {
+        "crypto": 0.0192,
+        "forensics": 0.0667,
+        "misc": 0.0833,
+        "pwn": 0.0,
+        "reverse": 0.0588,
+        "web": 0.0
+      },
+      "exit_reasons": {
+        "Solved": 7,
+        "MaxCost": 1,
+        "MaxRound": 4,
+        "Timeout": 44,
+        "Gave Up": 0,
+        "Error/Bug": 27,
+        "Not Attempted": 117
       }
     }
   ]

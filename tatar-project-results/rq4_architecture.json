@@ -1,0 +1,148 @@
+{
+  "rq": "RQ4",
+  "title": "Multi-Agent Architecture \u2014 Optimal Planner/Executor Combination",
+  "description": "Compare large-planner+small-executor vs small-planner+large-executor vs same-model baselines",
+  "total_challenges": 200,
+  "categories": [
+    "crypto",
+    "forensics",
+    "misc",
+    "pwn",
+    "reverse",
+    "web"
+  ],
+  "conditions": {
+    "pro_plan_flash_exec": {
+      "label": "Pro Planner + Flash Executor",
+      "planner": "Gemini 3 Pro",
+      "executor": "Gemini 3 Flash",
+      "overall": {
+        "solved": 57,
+        "total": 200,
+        "solve_rate": 0.285,
+        "avg_cost": 0.0684,
+        "total_cost": 3.9
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 11,
+          "total": 52,
+          "solve_rate": 0.2115
+        },
+        "forensics": {
+          "solved": 4,
+          "total": 15,
+          "solve_rate": 0.2667
+        },
+        "misc": {
+          "solved": 7,
+          "total": 24,
+          "solve_rate": 0.2917
+        },
+        "pwn": {
+          "solved": 9,
+          "total": 39,
+          "solve_rate": 0.2308
+        },
+        "reverse": {
+          "solved": 20,
+          "total": 51,
+          "solve_rate": 0.3922
+        },
+        "web": {
+          "solved": 6,
+          "total": 19,
+          "solve_rate": 0.3158
+        }
+      }
+    },
+    "baseline_gemini3_pro": {
+      "label": "Gemini 3 Pro (both)",
+      "planner": "Gemini 3 Pro",
+      "executor": "Gemini 3 Pro",
+      "overall": {
+        "solved": 104,
+        "total": 200,
+        "solve_rate": 0.52,
+        "avg_cost": 0.4253,
+        "total_cost": 44.23
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 28,
+          "total": 52,
+          "solve_rate": 0.5385
+        },
+        "forensics": {
+          "solved": 7,
+          "total": 15,
+          "solve_rate": 0.4667
+        },
+        "misc": {
+          "solved": 17,
+          "total": 24,
+          "solve_rate": 0.7083
+        },
+        "pwn": {
+          "solved": 13,
+          "total": 39,
+          "solve_rate": 0.3333
+        },
+        "reverse": {
+          "solved": 30,
+          "total": 51,
+          "solve_rate": 0.5882
+        },
+        "web": {
+          "solved": 9,
+          "total": 19,
+          "solve_rate": 0.4737
+        }
+      }
+    },
+    "baseline_gemini3_flash": {
+      "label": "Gemini 3 Flash (both)",
+      "planner": "Gemini 3 Flash",
+      "executor": "Gemini 3 Flash",
+      "overall": {
+        "solved": 54,
+        "total": 200,
+        "solve_rate": 0.27,
+        "avg_cost": 0.0499,
+        "total_cost": 2.69
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 19,
+          "total": 52,
+          "solve_rate": 0.3654
+        },
+        "forensics": {
+          "solved": 2,
+          "total": 15,
+          "solve_rate": 0.1333
+        },
+        "misc": {
+          "solved": 7,
+          "total": 24,
+          "solve_rate": 0.2917
+        },
+        "pwn": {
+          "solved": 11,
+          "total": 39,
+          "solve_rate": 0.2821
+        },
+        "reverse": {
+          "solved": 9,
+          "total": 51,
+          "solve_rate": 0.1765
+        },
+        "web": {
+          "solved": 6,
+          "total": 19,
+          "solve_rate": 0.3158
+        }
+      }
+    }
+  }
+}
