@@ -74,7 +74,11 @@ class TogetherBackend(Backend):
         )
 
     def calculate_cost(self, response):
-        return self.in_price * response.usage.prompt_tokens + self.out_price * response.usage.completion_tokens
+        if response.usage:
+            prompt_tokens = response.usage.prompt_tokens or 0
+            completion_tokens = response.usage.completion_tokens or 0
+            return self.in_price * prompt_tokens + self.out_price * completion_tokens
+        return 0
 
     def send(self, messages):
         formatted_messages = []
@@ -102,7 +106,16 @@ class TogetherBackend(Backend):
         try:
             response = self._call_model(formatted_messages)
             cost = self.calculate_cost(response)
+
+            # Guard against empty choices (blocked/empty responses)
+            if not response.choices:
+                return BackendResponse(content=None, tool_call=None, cost=cost)
+
             response = response.choices[0].message
+
+            # Guard against None message
+            if not response:
+                return BackendResponse(content=None, tool_call=None, cost=cost)
         except InvalidRequestError as e:
             return BackendResponse(error=f"Backend Error: {e}")
 

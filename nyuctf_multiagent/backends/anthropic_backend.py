@@ -30,7 +30,11 @@ class AnthropicBackend(Backend):
         }
 
     def calculate_cost(self, response):
-        return self.in_price * response.usage.input_tokens + self.out_price * response.usage.output_tokens
+        if response.usage:
+            input_tokens = response.usage.input_tokens or 0
+            output_tokens = response.usage.output_tokens or 0
+            return self.in_price * input_tokens + self.out_price * output_tokens
+        return 0
 
     def _call_model(self, system, messages):
         return self.client.messages.create(
@@ -73,6 +77,10 @@ class AnthropicBackend(Backend):
             cost = self.calculate_cost(response)
         except RateLimitError as e:
             return BackendResponse(error=f"Backend Error: {e}")
+
+        # Guard against None content (blocked/empty responses)
+        if not response.content:
+            return BackendResponse(content=None, tool_call=None, cost=cost)
 
         content = [m for m in response.content if m.type == "text"]
         tool_call = [m for m in response.content if m.type == "tool_use"]

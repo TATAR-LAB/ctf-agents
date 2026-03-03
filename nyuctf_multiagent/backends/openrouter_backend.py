@@ -58,7 +58,9 @@ class OpenRouterBackend(Backend):
 
     def calculate_cost(self, response):
         if response.usage:
-            return self.in_price * response.usage.prompt_tokens + self.out_price * response.usage.completion_tokens
+            prompt_tokens = response.usage.prompt_tokens or 0
+            completion_tokens = response.usage.completion_tokens or 0
+            return self.in_price * prompt_tokens + self.out_price * completion_tokens
         return 0
 
     def send(self, messages):
@@ -86,7 +88,16 @@ class OpenRouterBackend(Backend):
         try:
             response = self._call_model(formatted_messages)
             cost = self.calculate_cost(response)
+
+            # Guard against empty choices (blocked/empty responses)
+            if not response.choices:
+                return BackendResponse(content=None, tool_call=None, cost=cost)
+
             response = response.choices[0].message
+
+            # Guard against None message
+            if not response:
+                return BackendResponse(content=None, tool_call=None, cost=cost)
         except APIError as e:
             return BackendResponse(error=f"OpenRouter Error: {e}")
         except Exception as e:

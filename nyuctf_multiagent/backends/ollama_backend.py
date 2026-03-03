@@ -80,7 +80,16 @@ class OllamaBackend(Backend):
         try:
             response = self._call_model(formatted_messages)
             cost = self.calculate_cost(response)
+
+            # Guard against empty choices (blocked/empty responses)
+            if not response.choices:
+                return BackendResponse(content=None, tool_call=None, cost=cost)
+
             response = response.choices[0].message
+
+            # Guard against None message
+            if not response:
+                return BackendResponse(content=None, tool_call=None, cost=cost)
         except APIError as e:
             return BackendResponse(error=f"Ollama Backend Error: {e}")
         except Exception as e:
