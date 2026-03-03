@@ -10,14 +10,17 @@ set -eu
 (set -o pipefail 2>/dev/null) && set -o pipefail
 
 # Configuration
-CONFIG="configs/tatar-project/RQ1_RQ2/ubuntu_tips.yaml"
+CONFIG="configs/tatar-project/RQ5/reproducibility_gemini.yaml"
 SPLIT="test"
 KEYS="./keys.cfg"
 LOG_DIR="exp-logs"
-RESULTS_FILE="exp-results/experiment_results.log"
-FAILED_FILE="exp-results/failed_challenges.txt"
-COMPLETED_FILE="exp-results/completed_challenges.txt"
+RESULTS_DIR="exp-results"
 MAX_PARALLEL=3
+
+RESULTS_FILE="${RESULTS_DIR}/experiment_results.log"
+FAILED_FILE="${RESULTS_DIR}/failed_challenges.txt"
+COMPLETED_FILE="${RESULTS_DIR}/completed_challenges.txt"
+RETRY=0
 
 # Colors for output
 RED='\033[0;31m'
@@ -215,7 +218,7 @@ run_challenge() {
     fi
 
     # Check if already failed (skip on resume instead of re-running)
-    if grep -q "^${challenge}:" "$FAILED_FILE" 2>/dev/null; then
+    if [[ $RETRY -eq 0 ]] && grep -q "^${challenge}:" "$FAILED_FILE" 2>/dev/null; then
         log WARN "[$idx/$total] Skipping $challenge (previously failed)"
         increment_stat "skipped"
         return 0
@@ -424,13 +427,19 @@ while [[ $# -gt 0 ]]; do
             rm -f "$COMPLETED_FILE" "$FAILED_FILE"
             shift
             ;;
+        --retry)
+            log INFO "Will retry failed challenges..."
+            RETRY=1
+            shift
+            ;;
         --help|-h)
-            echo "Usage: $0 [--parallel N] [--resume|--clean|--help]"
+            echo "Usage: $0 [--parallel N] [--resume|--clean|--retry|--help]"
             echo ""
             echo "Options:"
             echo "  --parallel N  Max concurrent non-server challenges (default: 3)"
             echo "  --resume      Resume from previous run (skip completed challenges)"
             echo "  --clean       Start fresh (remove previous progress files)"
+            echo "  --retry       Retry failed challenges (works with --resume to only run failed/unseen ones)"
             echo "  --help        Show this help message"
             echo ""
             echo "How it works:"
