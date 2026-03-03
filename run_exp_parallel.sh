@@ -86,7 +86,7 @@ cleanup() {
     echo -e "\n${YELLOW}Caught interrupt signal. Cleaning up...${NC}"
 
     # Kill all child processes
-    for pid in "${CHILD_PIDS[@]}"; do
+    for pid in ${CHILD_PIDS[@]+"${CHILD_PIDS[@]}"}; do
         kill "$pid" 2>/dev/null || true
     done
     wait 2>/dev/null || true
@@ -187,16 +187,13 @@ for name in sorted(d.dataset.keys()):
 # -------------------------------------------------------------------
 cleanup_challenge_docker() {
     local challenge=$1
-    local pre_containers=$2
 
-    local post_containers
-    post_containers=$(docker ps -q | sort)
-    local new_containers
-    new_containers=$(comm -23 <(echo "$post_containers") <(echo "$pre_containers"))
+    local remaining_containers
+    remaining_containers=$(docker ps -q --filter "label=ctf_challenge=$challenge")
 
-    if [[ -n "$new_containers" ]]; then
-        log WARN "Cleaning up leftover containers from $challenge"
-        echo "$new_containers" | xargs -r docker rm -f 2>/dev/null || true
+    if [[ -n "$remaining_containers" ]]; then
+        log WARN "Cleaning up leftover containers for $challenge"
+        echo "$remaining_containers" | xargs -r docker rm -f 2>/dev/null || true
     fi
 }
 
@@ -223,10 +220,6 @@ run_challenge() {
         increment_stat "skipped"
         return 0
     fi
-
-    # Snapshot containers
-    local pre_containers
-    pre_containers=$(docker ps -q | sort)
 
     local start_time=$(date +%s)
     local exit_code=0
@@ -261,7 +254,7 @@ run_challenge() {
     fi
 
     # Cleanup Docker containers
-    cleanup_challenge_docker "$challenge" "$pre_containers"
+    cleanup_challenge_docker "$challenge"
 
     return 0
 }
@@ -274,7 +267,7 @@ wait_for_slot() {
     while true; do
         local running=0
         local new_pids=()
-        for pid in "${CHILD_PIDS[@]}"; do
+        for pid in ${CHILD_PIDS[@]+"${CHILD_PIDS[@]}"}; do
             if kill -0 "$pid" 2>/dev/null; then
                 ((running++)) || true
                 new_pids+=("$pid")
@@ -364,7 +357,7 @@ main() {
     log INFO "=== Phase 1: Running $total_noserver non-server challenges (parallel, max $MAX_PARALLEL) ==="
 
     local idx=0
-    for challenge in "${noserver_challenges[@]}"; do
+    for challenge in ${noserver_challenges[@]+"${noserver_challenges[@]}"}; do
         idx=$((idx + 1))
 
         # Wait for a free slot
@@ -380,7 +373,7 @@ main() {
 
     # Wait for all parallel jobs to finish
     log INFO "Waiting for remaining parallel jobs to complete..."
-    for pid in "${CHILD_PIDS[@]}"; do
+    for pid in ${CHILD_PIDS[@]+"${CHILD_PIDS[@]}"}; do
         wait "$pid" 2>/dev/null || true
     done
     CHILD_PIDS=()
@@ -392,7 +385,7 @@ main() {
     # ---------------------------------------------------------------
     log INFO "=== Phase 2: Running $total_server server challenges (sequential) ==="
 
-    for challenge in "${server_challenges[@]}"; do
+    for challenge in ${server_challenges[@]+"${server_challenges[@]}"}; do
         idx=$((idx + 1))
         run_challenge "$challenge" "$idx" "$total"
         sleep 2

@@ -41,6 +41,7 @@ class CTFEnvironment:
         status.debug_message(f"Starting environment container {self.container_image}...")
         cmd = ["docker", "run", "-d", "--rm", 
                "--network", self.network, "--platform", "linux/amd64",
+               "--label", f"ctf_challenge={self.challenge.name}",
                self.container_image]
         output = subprocess.run(cmd, check=True, capture_output=True, text=True)
         self.container = output.stdout.strip()
