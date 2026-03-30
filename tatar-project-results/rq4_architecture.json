@@ -56,6 +56,50 @@
         }
       }
     },
+    "flash_plan_pro_exec": {
+      "label": "Flash Planner + Pro Executor",
+      "planner": "Gemini 3 Flash",
+      "executor": "Gemini 3 Pro",
+      "overall": {
+        "solved": 47,
+        "total": 200,
+        "solve_rate": 0.235,
+        "avg_cost": 0.0622,
+        "total_cost": 2.92
+      },
+      "by_category": {
+        "crypto": {
+          "solved": 10,
+          "total": 52,
+          "solve_rate": 0.1923
+        },
+        "forensics": {
+          "solved": 3,
+          "total": 15,
+          "solve_rate": 0.2
+        },
+        "misc": {
+          "solved": 9,
+          "total": 24,
+          "solve_rate": 0.375
+        },
+        "pwn": {
+          "solved": 5,
+          "total": 39,
+          "solve_rate": 0.1282
+        },
+        "reverse": {
+          "solved": 17,
+          "total": 51,
+          "solve_rate": 0.3333
+        },
+        "web": {
+          "solved": 3,
+          "total": 19,
+          "solve_rate": 0.1579
+        }
+      }
+    },
     "baseline_gemini3_pro": {
       "label": "Gemini 3 Pro (both)",
       "planner": "Gemini 3 Pro",

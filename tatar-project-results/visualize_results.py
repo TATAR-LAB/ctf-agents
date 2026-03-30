@@ -70,7 +70,7 @@ def rq1rq2_all_conditions_bar(data: dict, out: Path):
     bars = ax.barh(labels, rates, color=colors, edgecolor="white", linewidth=1, height=0.65, zorder=3)
 
     ax.set_xlabel("Solve Rate (%)", fontsize=12, fontweight="bold")
-    ax.set_title("RQ1+RQ2: Overall Solve Rates — Available Conditions",
+    ax.set_title("Overall Solve Rates — Available Conditions",
                  fontsize=14, fontweight="bold", pad=12)
     max_rate = max(rates) if rates else 40
     ax.set_xlim(0, max_rate * 1.3)
@@ -147,7 +147,7 @@ def rq1rq2_exit_reasons(data: dict, out: Path):
         lefts += widths
 
     ax.set_xlabel("Number of Challenges", fontsize=12, fontweight="bold")
-    ax.set_title("RQ1+RQ2: Challenge Outcome Breakdown by Condition",
+    ax.set_title("Challenge Outcome Breakdown by Condition",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xlim(0, total + 5)
     ax.axvline(x=total, color="#ccc", linewidth=1, linestyle="--", zorder=1)
@@ -189,7 +189,7 @@ def rq1rq2_category_comparison(data: dict, out: Path):
                       color=color, edgecolor="white", linewidth=0.8, zorder=3)
 
     ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
-    ax.set_title("RQ1+RQ2: Solve Rates by Category and Condition",
+    ax.set_title("Solve Rates by Category and Condition",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xticks(x)
     ax.set_xticklabels([c.capitalize() for c in cats], fontsize=11)
@@ -423,7 +423,7 @@ def rq3_exit_reasons(data: dict, out: Path):
         lefts += widths
 
     ax.set_xlabel("Number of Challenges", fontsize=12, fontweight="bold")
-    ax.set_title("RQ3: Challenge Outcome Breakdown by Model",
+    ax.set_title("Challenge Outcome Breakdown by Model",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xlim(0, total + 5)
     ax.axvline(x=total, color="#ccc", linewidth=1, linestyle="--", zorder=1)
@@ -453,31 +453,34 @@ def rq3_horizontal_bar(data: dict, out: Path):
     rates = [m["overall"]["solve_rate"] * 100 for m in models]
     colors = [PROVIDER_COLORS.get(m["provider"], "#888") for m in models]
 
-    fig, ax = plt.subplots(figsize=(10, max(4, len(models) * 0.7)))
+    fig, ax = plt.subplots(figsize=(12, max(5, len(models) * 0.75)))
     bars = ax.barh(names, rates, color=colors, edgecolor="white", linewidth=0.8, height=0.7, zorder=3)
-    ax.set_xlabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_xlabel("Solve Rate (%)", fontsize=14, fontweight="bold")
     ax.set_title("Model Benchmark — Overall Solve Rates on NYU CTF Bench",
-                 fontsize=14, fontweight="bold", pad=12)
+                 fontsize=16, fontweight="bold", pad=14)
     max_rate = max(rates) if rates else 48
     ax.set_xlim(0, max_rate * 1.3)
     ax.grid(axis="x", alpha=0.3, zorder=0)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.tick_params(axis="y", labelsize=10)
+    ax.tick_params(axis="y", labelsize=12)
+    for label in ax.get_yticklabels():
+        label.set_rotation(15)
+        label.set_va("center")
 
     total = data.get("total_challenges", 200)
     for bar, rate, m in zip(bars, rates, models):
         solved = m["overall"]["solved"]
         ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=9,
+                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=11,
                 fontweight="bold", color="#333")
 
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=c, label=p) for p, c in PROVIDER_COLORS.items()
                        if p in {m["provider"] for m in models}]
     if legend_elements:
-        ax.legend(handles=legend_elements, loc="lower right", fontsize=9,
-                  title="Provider", title_fontsize=10)
+        ax.legend(handles=legend_elements, loc="lower right", fontsize=11,
+                  title="Provider", title_fontsize=12)
     fig.tight_layout()
     fig.savefig(out / "rq3_model_ranking.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
@@ -505,7 +508,7 @@ def rq3_cost_vs_solve(data: dict, out: Path):
                     xytext=(5, 4), textcoords="offset points", color="#333")
     ax.set_xlabel("Avg Cost per Challenge ($)", fontsize=12, fontweight="bold")
     ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
-    ax.set_title("RQ3: Cost-Performance Tradeoff", fontsize=14, fontweight="bold", pad=12)
+    ax.set_title("Cost-Performance Tradeoff", fontsize=14, fontweight="bold", pad=12)
     ax.grid(alpha=0.3, zorder=0)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -664,7 +667,7 @@ def rq3_model_type_comparison(data: dict, out: Path):
     bars = ax.bar(range(len(types)), means, yerr=stds, capsize=5,
                   color=colors_list, edgecolor="white", linewidth=1, zorder=3)
     ax.set_ylabel("Avg Solve Rate (%)", fontsize=12, fontweight="bold")
-    ax.set_title("RQ3: Performance by Model Type", fontsize=14, fontweight="bold", pad=12)
+    ax.set_title("Performance by Model Type", fontsize=14, fontweight="bold", pad=12)
     ax.set_xticks(range(len(types)))
     ax.set_xticklabels([t.replace("-", " ").title() for t in types], fontsize=10, rotation=15, ha="right")
     ax.set_ylim(0, max(means) * 1.4 if means else 45)
@@ -707,7 +710,7 @@ def rq4_architecture_bar(data: dict, out: Path):
     bars = ax.barh(labels, rates, color=colors, edgecolor="white", linewidth=1, height=0.6, zorder=3)
 
     ax.set_xlabel("Solve Rate (%)", fontsize=12, fontweight="bold")
-    ax.set_title("RQ4: Planner/Executor Architecture Comparison",
+    ax.set_title("Planner/Executor Architecture Comparison",
                  fontsize=14, fontweight="bold", pad=12)
     max_rate = max(rates) if rates else 50
     ax.set_xlim(0, max_rate * 1.35)
@@ -856,7 +859,7 @@ def rq5_reproducibility_chart(data: dict, out: Path):
     ax.set_xticks(x)
     ax.set_xticklabels(run_labels, fontsize=11)
     ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
-    ax.set_title(f"RQ5: Reproducibility — {data.get('model', 'Model')}",
+    ax.set_title(f"Reproducibility — {data.get('model', 'Model')}",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xlim(-0.5, len(runs) - 0.5)
     ax.grid(axis="y", alpha=0.3, zorder=0)
@@ -897,7 +900,7 @@ def rq5_category_variance(data: dict, out: Path):
                color=cmap_runs[i], edgecolor="white", linewidth=0.8, zorder=3)
 
     ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
-    ax.set_title("RQ5: Per-Category Solve Rates Across Runs",
+    ax.set_title("Per-Category Solve Rates Across Runs",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xticks(x)
     ax.set_xticklabels([c.capitalize() for c in cats], fontsize=11)
@@ -919,7 +922,7 @@ def main():
     parser = argparse.ArgumentParser(description="Visualize D-CIPHER experiment results")
     parser.add_argument("--results-dir", default="tatar-project-results",
                         help="Directory containing JSON result files")
-    parser.add_argument("--output-dir", default="tatar-project-results/plots",
+    parser.add_argument("--output-dir", default="tatar-project-paper/figures",
                         help="Directory to save plots")
     args = parser.parse_args()
 

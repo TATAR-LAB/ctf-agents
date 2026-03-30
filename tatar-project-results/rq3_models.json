@@ -255,6 +255,36 @@
       }
     },
     {
+      "name": "Claude 4.5 Opus",
+      "provider": "Anthropic",
+      "type": "frontier",
+      "config": "opus.yaml",
+      "overall": {
+        "solved": 118,
+        "total": 200,
+        "solve_rate": 0.59,
+        "avg_cost": 0.5158,
+        "total_cost": 18.57
+      },
+      "by_category": {
+        "crypto": 0.6154,
+        "forensics": 0.5333,
+        "misc": 0.7917,
+        "pwn": 0.4103,
+        "reverse": 0.6471,
+        "web": 0.5263
+      },
+      "exit_reasons": {
+        "Solved": 118,
+        "MaxCost": 6,
+        "MaxRound": 1,
+        "Timeout": 0,
+        "Gave Up": 0,
+        "Error/Bug": 75,
+        "Not Attempted": 0
+      }
+    },
+    {
       "name": "Qwen 3.5 397B-A17B",
       "provider": "Alibaba",
       "type": "open-source",

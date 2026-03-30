@@ -1,0 +1,93 @@
+{
+  "rq": "RQ5",
+  "title": "Reproducibility \u2014 How consistent are LLM CTF solvers?",
+  "description": "Multiple runs of Gemini 3 Pro to measure variance",
+  "model": "Gemini 3 Pro",
+  "total_challenges": 200,
+  "categories": [
+    "crypto",
+    "forensics",
+    "misc",
+    "pwn",
+    "reverse",
+    "web"
+  ],
+  "runs": [
+    {
+      "run": 1,
+      "dir": "exp-logs-reproducibility_gemini_0",
+      "overall": {
+        "solved": 104,
+        "total": 200,
+        "solve_rate": 0.52,
+        "avg_cost": 0.4253,
+        "total_cost": 44.23
+      },
+      "by_category": {
+        "crypto": 0.5385,
+        "forensics": 0.4667,
+        "misc": 0.7083,
+        "pwn": 0.3333,
+        "reverse": 0.5882,
+        "web": 0.4737
+      }
+    },
+    {
+      "run": 2,
+      "dir": "exp-logs-reproducibility_gemini_1",
+      "overall": {
+        "solved": 45,
+        "total": 200,
+        "solve_rate": 0.225,
+        "avg_cost": 0.1312,
+        "total_cost": 5.9
+      },
+      "by_category": {
+        "crypto": 0.2308,
+        "forensics": 0.1333,
+        "misc": 0.25,
+        "pwn": 0.2051,
+        "reverse": 0.2353,
+        "web": 0.2632
+      }
+    },
+    {
+      "run": 3,
+      "dir": "exp-logs-reproducibility_gemini_2",
+      "overall": {
+        "solved": 52,
+        "total": 200,
+        "solve_rate": 0.26,
+        "avg_cost": 0.107,
+        "total_cost": 5.56
+      },
+      "by_category": {
+        "crypto": 0.2885,
+        "forensics": 0.1333,
+        "misc": 0.2917,
+        "pwn": 0.1282,
+        "reverse": 0.3333,
+        "web": 0.3158
+      }
+    },
+    {
+      "run": 4,
+      "dir": "exp-logs-reproducibility_gemini_3",
+      "overall": {
+        "solved": 27,
+        "total": 200,
+        "solve_rate": 0.135,
+        "avg_cost": 0.1362,
+        "total_cost": 3.68
+      },
+      "by_category": {
+        "crypto": 0.1731,
+        "forensics": 0.1333,
+        "misc": 0.1667,
+        "pwn": 0.0256,
+        "reverse": 0.2157,
+        "web": 0.0
+      }
+    }
+  ]
+}
