@@ -47,10 +47,11 @@ RQ1_RQ2_SETUPS = {
 
 # RQ3: suffix → (model name, provider, model type)
 # Multiple suffixes may map to the same model (different dir naming conventions).
+# Valid types: frontier, medium, small, code_specialized, open-source, security_specialized
 RQ3_MODELS = {
     "gpt52":            {"name": "GPT-5.2",              "provider": "OpenAI",    "type": "frontier"},
     "gpt52_pro":        {"name": "GPT-5.2-Pro",          "provider": "OpenAI",    "type": "frontier"},
-    "gpt52_codex":      {"name": "GPT-5.2-Codex",        "provider": "OpenAI",    "type": "code-specialized"},
+    "gpt52_codex":      {"name": "GPT-5.2-Codex",        "provider": "OpenAI",    "type": "code_specialized"},
     "opus":             {"name": "Claude 4.5 Opus",       "provider": "Anthropic", "type": "frontier"},
     "claude_opus":      {"name": "Claude 4.5 Opus",       "provider": "Anthropic", "type": "frontier"},
     "sonnet":           {"name": "Claude 4.5 Sonnet",     "provider": "Anthropic", "type": "frontier"},
@@ -58,18 +59,18 @@ RQ3_MODELS = {
     "haiku":            {"name": "Claude 4.5 Haiku",      "provider": "Anthropic", "type": "small"},
     "claude_haiku":     {"name": "Claude 4.5 Haiku",      "provider": "Anthropic", "type": "small"},
     "gemini3_pro":      {"name": "Gemini 3 Pro",          "provider": "Google",    "type": "frontier"},
-    "gemini3_flash":    {"name": "Gemini 3 Flash",        "provider": "Google",    "type": "small"},
-    "deepseek_r1":      {"name": "DeepSeek-R1",           "provider": "DeepSeek",  "type": "reasoning"},
+    "gemini3_flash":    {"name": "Gemini 3 Flash",        "provider": "Google",    "type": "medium"},
+    "deepseek_r1":      {"name": "DeepSeek-R1",           "provider": "DeepSeek",  "type": "open-source"},
     "deepseek_v3":      {"name": "DeepSeek-V3",           "provider": "DeepSeek",  "type": "frontier"},
     "grok4":            {"name": "Grok-4",                "provider": "xAI",       "type": "frontier"},
     "grok41_fast":      {"name": "Grok-4.1 Fast",         "provider": "xAI",       "type": "small"},
     "llama33_70b":      {"name": "Llama 3.3 70B",         "provider": "Meta",      "type": "open-source"},
     "llama31_8b":       {"name": "Llama 3.1 8B",          "provider": "Meta",      "type": "open-source"},
-    "qwen35":        {"name": "Qwen 3.5 397B-A17B",             "provider": "Alibaba",   "type": "open-source"},
-    "glm5":             {"name": "GLM-5",                 "provider": "Z-AI",      "type": "frontier"},
-    "kimik25":          {"name": "Kimi K2.5",             "provider": "Moonshot",  "type": "frontier"},
+    "qwen35":           {"name": "Qwen 3.5 397B-A17B",    "provider": "Alibaba",   "type": "open-source"},
+    "glm5":             {"name": "GLM-5",                 "provider": "Z-AI",      "type": "open-source"},
+    "kimik25":          {"name": "Kimi K2.5",             "provider": "Moonshot",  "type": "medium"},
     "mistral_large":    {"name": "Mistral Large",         "provider": "Mistral",   "type": "frontier"},
-    "foundation_sec_8b":{"name": "Foundation-Sec 8B",     "provider": "Cisco",     "type": "security-specialized"},
+    "foundation_sec_8b":{"name": "Foundation-Sec 8B",     "provider": "Cisco",     "type": "security_specialized"},
 }
 
 # RQ4: suffix → (planner model, executor model, label)

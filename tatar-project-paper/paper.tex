@@ -86,7 +86,7 @@ large language models, capture the flag, cybersecurity benchmarking, multi-agent
 \begin{enumerate}
   \item First systematic comparison of 10 frontier LLMs (from 7 providers) on 200 CTF challenges using a unified multi-agent framework.
   \item $2\!\times\!2\!\times\!2$ factorial analysis of environment (Ubuntu/Kali), prompt strategy (generic/tips), and auto-prompting, providing evidence that Kali Linux provides +9.5\,pp improvement while auto-prompting hurts.
-  \item Cost-performance analysis revealing Gemini 3 Flash achieves 8.6$\times$ better cost-efficiency than Gemini 3 Pro.
+  \item Cost-performance analysis revealing Gemini 3 Flash is significantly cheaper per solve than Gemini 3 Pro while maintaining reasonable accuracy.
   % \item Reproducibility study showing dramatic run-to-run variance (13.5\%--52\%), highlighting a methodological gap in LLM benchmarking.
   \item Open experimental infrastructure: Kali Docker image, tool documentation lookup agents, parallel experiment runner, result parsing/visualization pipeline.
 \end{enumerate}
@@ -179,63 +179,77 @@ Kali Linux consistently outperforms Ubuntu in matched conditions. Under identica
 The interaction between environment and prompt strategy is noteworthy. Under Kali, generic prompts outperform category-specific tips ($52.0\%$ vs.\ $40.0\%$), whereas under Ubuntu the pattern reverses ($42.5\%$ vs.\ $44.5\%$). A likely explanation is that the richly tooled Kali environment already encodes implicit guidance; layering explicit tips over-constrains the agent's exploration. On Ubuntu, the sparser environment means tips compensate by steering the agent toward appropriate techniques.
 
 % \noindent\textbf{AutoPrompt effect.}
-Auto-prompting, in which the agent explores challenge files and generates a tailored prompt before solving, generally \emph{hurts} performance. Under Kali + Generic, AutoPrompt reduces the solve rate from $52.0\%$ to $39.5\%$ ($-12.5$\,pp); under Ubuntu + Tips, the drop is even sharper: $44.5\%$ to $16.0\%$ ($-28.5$\,pp). One exception stands out: under Kali + Tips, AutoPrompt raises the rate from $40.0\%$ to $48.5\%$ ($+8.5$\,pp), suggesting it can partially recover a sub-optimal base strategy. We hypothesize that the additional exploration phase typically consumes budget without producing actionable insight, and may introduce misleading preliminary analysis.
+Auto-prompting, in which the agent explores challenge files and generates a tailored prompt before solving, generally hurts performance. Under Kali + Generic, AutoPrompt reduces the solve rate from $52.0\%$ to $39.5\%$ ($-12.5$\,pp); under Ubuntu + Tips, the drop is even sharper: $44.5\%$ to $16.0\%$ ($-28.5$\,pp). One exception stands out: under Kali + Tips, AutoPrompt raises the rate from $40.0\%$ to $48.5\%$ ($+8.5$\,pp), suggesting it can partially recover a sub-optimal base strategy. We hypothesize that the additional exploration phase typically consumes budget without producing actionable insight, and may introduce misleading preliminary analysis.
 
 The best overall configuration (Kali + Generic without AutoPrompt) costs \$44.23 total. Notably, the most expensive configuration (Kali + Tips + AutoPrompt, \$66.12) achieves only the second-best solve rate (48.5\%), reinforcing that simpler configurations dominate.
 
-\begin{figure*}[t]
+\begin{figure}[htb]
   \centering
-  \includegraphics[width=0.6\linewidth]{./figures/rq1rq2_heatmap_table.png}
+  \includegraphics[width=\columnwidth]{./figures/rq1rq2_heatmap_table.png}
   \caption{Solve rates by configuration and challenge category (RQ1+RQ2).}
   \label{fig:rq12_heatmap}
-\end{figure*}
+\end{figure}
 
 \subsection{RQ3: Model Selection}
 
-We benchmark ten frontier LLMs from seven providers under the best RQ1/RQ2 configuration (Kali + Generic, no AutoPrompt). Table~\ref{tab:rq3_results} reports solve rates, total costs, and cost-per-solve; Figure~\ref{fig:rq3_cost} visualizes the cost--performance tradeoff.
+We benchmark ten LLMs from seven providers under the best RQ1/RQ2 configuration (Kali + Generic, no AutoPrompt). Table~\ref{tab:rq3_results} reports solve rates, total costs, and cost-per-solve; Figure~\ref{fig:rq3_cost} visualizes the cost--performance tradeoff.
 
-\begin{table}[t]
+\begin{table}[htb]
 \centering
 \caption{Model benchmark on NYU CTF Bench \\(200 Challenges on Kali with Generic prompts)}
 \label{tab:rq3_results}
 \footnotesize
 \begin{tabular}{@{}llrrrr@{}}
 \toprule
-\textbf{Model} & \textbf{Provider} & \textbf{Solved} & \textbf{Rate} & \textbf{Cost (\$)} \\ % & \textbf{\$/Solve} \\
+\textbf{Model} & \textbf{Provider} & \textbf{Solved} & \textbf{Rate} & \textbf{Cost (\$)} & \textbf{\$/Solve} \\
 \midrule
-Claude 4.5 Opus    & Anthropic & 118 & \%59.0 & \$18.57 \\
-Gemini 3 Pro       & Google    & 104 & \%52.0 & \$44.23 \\
-Gemini 3 Flash     & Google    &  54 & \%27.0 &  \$2.69 \\
-GLM-5              & Z-AI      &  39 & \%19.5 & \$22.09 \\
-GPT-5.2-Codex      & OpenAI    &  36 & \%18.0 &  \$9.23 \\
-GPT-5.2            & OpenAI    &  27 & \%13.5 &  \$7.47 \\
-DeepSeek-V3        & DeepSeek  &  13 &  \%6.5 &  \$0.19 \\
-DeepSeek-R1        & DeepSeek  &   8 &  \%4.0 &  \$0.13 \\
-Qwen-3.5-397B-A17B & Alibaba   &   7 &  \%3.5 &  \$1.39 \\
-Llama-3.3-70B      & Meta      &   5 &  \%2.5 &  \$0.03 \\
+Claude 4.5 Opus    & Anthropic & 118 & 59.0\% & \$18.57 & \$0.16 \\
+Gemini 3 Pro       & Google    & 104 & 52.0\% & \$44.23 & \$0.43 \\
+Gemini 3 Flash     & Google    &  54 & 27.0\% &  \$2.69 & \$0.05 \\
+GLM-5              & Z-AI      &  39 & 19.5\% & \$22.09 & \$0.57 \\
+GPT-5.2-Codex      & OpenAI    &  36 & 18.0\% &  \$9.23 & \$0.26 \\
+GPT-5.2            & OpenAI    &  27 & 13.5\% &  \$7.47 & \$0.28 \\
+DeepSeek-V3        & DeepSeek  &  13 &  6.5\% &  \$0.19 & \$0.01 \\
+DeepSeek-R1        & DeepSeek  &   8 &  4.0\% &  \$0.13 & \$0.02 \\
+Qwen-3.5-397B-A17B & Alibaba   &   7 &  3.5\% &  \$1.39 & \$0.20 \\
+Llama-3.3-70B      & Meta      &   5 &  2.5\% &  \$0.03 & \$0.01 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 % \noindent\textbf{Overall ranking and provider hierarchy.}
-Claude~4.5~Opus leads at 59.0\% (118/200), followed by Gemini~3~Pro at 52.0\% (104/200). These two models form a clear top tier, each solving at least $1.9\times$ more challenges than the third-ranked Gemini~3~Flash (27.0\%). OpenAI's models cluster in the middle tier: GPT-5.2-Codex (18.0\%) outperforms base GPT-5.2 (13.5\%), suggesting code specialization provides a meaningful advantage. Z-AI's GLM-5 (19.5\%) achieves competitive accuracy but at disproportionate cost (\$0.57/solve). Open-source models (Llama~3.3~70B, Qwen~3.5) and DeepSeek variants perform poorly at 2.5--6.5\%, likely due to weaker tool-use and multi-turn agentic reasoning capabilities.
+Claude~4.5~Opus leads at 59.0\% (118/200), followed by Gemini~3~Pro at 52.0\% (104/200). These two frontier models form a clear top tier, each solving nearly twice as many challenges as the third-ranked Gemini~3~Flash (27.0\%). OpenAI's models cluster in the middle tier: GPT-5.2-Codex (18.0\%) outperforms base GPT-5.2 (13.5\%), suggesting code specialization provides a meaningful advantage. Open-source and mid-tier models perform poorly: GLM-5 (19.5\%) achieves reasonable accuracy but at disproportionate cost (\$0.57/solve), while DeepSeek-V3 (6.5\%), DeepSeek-R1 (4.0\%), Qwen~3.5 (3.5\%), and Llama~3.3~70B (2.5\%) all fall below 7\%, likely due to weaker tool-use and multi-turn agentic reasoning capabilities.
 
 % \noindent\textbf{Reasoning vs.\ agentic capability.}
-The DeepSeek pair provides an instructive comparison: the reasoning-specialized R1 (4.0\%) does \emph{not} outperform the standard V3 (6.5\%). This suggests that in agentic settings, where success depends on iterative tool calls and multi-step environment interaction, robust tool-use matters more than pure chain-of-thought reasoning.
+The DeepSeek pair provides an instructive comparison: the reasoning-specialized R1 (4.0\%) does not outperform the standard V3 (6.5\%). This suggests that in agentic settings, where success depends on iterative tool calls and multi-step environment interaction, robust tool-use matters more than pure chain-of-thought reasoning.
 
 % \noindent\textbf{Failure modes.}
-Failure patterns vary qualitatively across models. DeepSeek models fail predominantly by timeout (188/200 for R1), indicating inability to make progress. GPT-5.2 exhibits a high error rate (88/200), suggesting tool-framework integration issues. Llama~3.3~70B prematurely gives up on 160/200 challenges. In contrast, Gemini~3~Pro fails more gracefully, hitting cost (30) or round (41) limits, indicating productive progress that simply exhausts the budget. Claude~4.5~Opus shows 75 error exits among its 82 unsolved challenges; when these integration issues are absent, the model performs strongly.
+Failure patterns vary qualitatively across models (Figure~\ref{fig:rq3_exit}). DeepSeek models fail predominantly by timeout (188/200 for R1), indicating inability to make progress. GPT-5.2 exhibits a high error rate (88/200), suggesting tool-framework integration issues. Llama~3.3~70B prematurely gives up on 160/200 challenges. In contrast, Gemini~3~Pro fails more gracefully, hitting cost (30) or round (41) limits, indicating productive progress that simply exhausts the budget. Claude~4.5~Opus shows 75 error exits among its 82 unsolved challenges; when these integration issues are absent, the model performs strongly.
 
 % \noindent\textbf{Category patterns.}
-The \textit{misc} category is the easiest across nearly all models, while \textit{pwn} is consistently the hardest. Claude~4.5~Opus outperforms Gemini~3~Pro in every category, with the largest gains in pwn (41.0\% vs.\ 33.3\%) and web (52.6\% vs.\ 47.4\%).
+The \textit{misc} category is the easiest across nearly all models, while \textit{pwn} is consistently the hardest (Figure~\ref{fig:rq3_heatmap}). Claude~4.5~Opus outperforms Gemini~3~Pro in every category, with the largest gains in pwn (41.0\% vs.\ 33.3\%) and web (52.6\% vs.\ 47.4\%).
 
 % \noindent\textbf{Cost-efficiency.}
-Gemini~3~Flash occupies a uniquely favorable position on the cost--performance frontier (Figure~\ref{fig:rq3_cost}): at \$0.05/solve, it is $8.6\times$ cheaper than Gemini~3~Pro and $3.2\times$ cheaper than Claude~4.5~Opus, while solving over half of what Pro achieves at 6\% of the cost. Claude~4.5~Opus, despite its highest absolute accuracy, is more cost-effective than Gemini~3~Pro (\$0.16 vs.\ \$0.43 per solve) due to lower total cost and higher solve count.
+Gemini~3~Flash occupies a uniquely favorable position on the cost--performance frontier (Figure~\ref{fig:rq3_cost}): at \$0.05/solve, it is significantly cheaper than both Gemini~3~Pro (\$0.43/solve) and Claude~4.5~Opus (\$0.16/solve), while solving over half of what Pro achieves at 6\% of the cost. Claude~4.5~Opus, despite its highest absolute accuracy, is more cost-effective than Gemini~3~Pro due to lower total cost and higher solve count.
 
-\begin{figure}[t]
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\columnwidth]{./figures/rq3_exit_reasons.png}
+  \caption{Challenge outcome breakdown by model. Each bar shows the distribution of exit reasons across 200 challenges.}
+  \label{fig:rq3_exit}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\columnwidth]{./figures/rq3_heatmap_table.png}
+  \caption{Per-category solve rates across all ten models. Darker cells indicate higher solve rates.}
+  \label{fig:rq3_heatmap}
+\end{figure}
+
+\begin{figure}[htb]
   \centering
   \includegraphics[width=\columnwidth]{./figures/rq3_cost_vs_solve.png}
-  \caption{Cost--performance tradeoff: average cost per challenge vs.\ solve rate. Bubble size is proportional to total cost. The upper-left region is optimal.}
+  \caption{Cost--performance tradeoff: average cost per challenge vs.\ solve rate. Bubble size is proportional to total cost.}
   \label{fig:rq3_cost}
 \end{figure}
 
@@ -243,7 +257,7 @@ Gemini~3~Flash occupies a uniquely favorable position on the cost--performance f
 
 Table~\ref{tab:rq4_results} presents results for four planner/executor configurations using Gemini~3~Pro and Flash, all under Kali + Generic.
 
-\begin{table}[t]
+\begin{table}[htb]
 \centering
 \caption{Planner/Executor architecture comparison \\(200 challenges, Kali + Generic).}
 \label{tab:rq4_results}
@@ -262,7 +276,7 @@ Flash & Pro   &  47 & 23.5\% &  2.92 \\
 
 The homogeneous Pro configuration achieves 52.0\%, nearly doubling the next-best result. The asymmetric Pro~Planner + Flash~Executor yields only $+1.5$\,pp over Flash-only (28.5\% vs.\ 27.0\%) while increasing cost by 45\%, a poor tradeoff.
 
-Most surprisingly, the reverse configuration (Flash~Planner + Pro~Executor) performs \emph{worse} than Flash-only (23.5\% vs.\ 27.0\%), despite deploying the stronger model as executor. This challenges the intuition that executor quality is the bottleneck; instead, it suggests that \emph{coherent planning and execution within the same model} matters more than the raw capability of either role alone. The performance gap is largest in categories requiring sustained multi-step reasoning: crypto (53.8\% for Pro-only vs.\ 21.1\% for Pro+Flash) and misc (70.8\% vs.\ 29.2\%). The practical implication is clear: invest in the best model for \emph{both} roles rather than optimizing with mixed tiers.
+Most surprisingly, the reverse configuration (Flash~Planner + Pro~Executor) performs worse than Flash-only (23.5\% vs.\ 27.0\%), despite deploying the stronger model as executor. This challenges the intuition that executor quality is the bottleneck; instead, it suggests that \textbf{coherent planning and execution within the same model} matters more than the raw capability of either role alone. The performance gap is largest in categories requiring sustained multi-step reasoning: crypto (53.8\% for Pro-only vs.\ 21.1\% for Pro+Flash) and misc (70.8\% vs.\ 29.2\%). The practical implication is clear: invest in the best model for both roles rather than optimizing with mixed tiers.
 
 % \subsection{RQ5: Reproducibility}
 % 
@@ -272,7 +286,7 @@ Most surprisingly, the reverse configuration (Flash~Planner + Pro~Executor) perf
 % 
 % These findings carry significant methodological implications. Run~1, taken in isolation, would characterize Gemini~3~Pro as solving over half of all challenges; Run~4 would label it a weak performer at 13.5\%. Single-run benchmarks, as commonly reported, may substantially misrepresent true capability. We argue that the field requires standardized reproducibility protocols: results should report multiple replications with confidence intervals, and cross-model comparisons are meaningful only when evaluated across the same number of trials.
 % 
-% \begin{figure}[t]
+% \begin{figure}[htb]
 %   \centering
 %   \includegraphics[width=\columnwidth]{./figures/rq5_reproducibility.png}
 %   \caption{Reproducibility: solve rates across four identical runs of Gemini~3~Pro. Dashed line shows the mean ($28.5\%$); shaded band indicates $\pm 1\sigma$ ($14.3\%$).}
@@ -284,7 +298,7 @@ Most surprisingly, the reverse configuration (Flash~Planner + Pro~Executor) perf
 
 \noindent\textbf{Summary:}
 \begin{itemize}
-  \item We benchmarked 10 frontier LLMs on 200 CTF challenges. Claude 4.5 Opus achieves the highest solve rate at 59\%, while Gemini 3 Flash offers $8.6\times$ better cost-efficiency at \$0.05/solve.
+  \item We benchmarked 10 LLMs from 7 providers on 200 CTF challenges. Claude 4.5 Opus achieves the highest solve rate at 59\%, while Gemini 3 Flash offers significantly better cost-efficiency at \$0.05/solve.
   \item Kali Linux provides +9.5\,pp over Ubuntu; auto-prompting and specialized tips generally hurt performance, and simpler configurations work best.
   \item Asymmetric planner/executor architectures do not yield meaningful cost-performance benefits; coherent same-model configurations outperform mixed-tier pairings.
   % \item Run-to-run variance (13.5--52\%) is alarmingly high, challenging single-run benchmarks. Results should include multiple runs with confidence intervals.

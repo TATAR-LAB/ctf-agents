@@ -17,7 +17,7 @@
     {
       "name": "DeepSeek-R1",
       "provider": "DeepSeek",
-      "type": "reasoning",
+      "type": "open-source",
       "config": "deepseek_r1.yaml",
       "overall": {
         "solved": 8,
@@ -77,7 +77,7 @@
     {
       "name": "Gemini 3 Flash",
       "provider": "Google",
-      "type": "small",
+      "type": "medium",
       "config": "gemini3_flash.yaml",
       "overall": {
         "solved": 54,
@@ -137,7 +137,7 @@
     {
       "name": "GLM-5",
       "provider": "Z-AI",
-      "type": "frontier",
+      "type": "open-source",
       "config": "glm5.yaml",
       "overall": {
         "solved": 39,
@@ -197,7 +197,7 @@
     {
       "name": "GPT-5.2-Codex",
       "provider": "OpenAI",
-      "type": "code-specialized",
+      "type": "code_specialized",
       "config": "gpt52_codex.yaml",
       "overall": {
         "solved": 36,

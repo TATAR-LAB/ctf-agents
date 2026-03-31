@@ -18,6 +18,18 @@ import matplotlib.ticker as mticker
 import numpy as np
 from matplotlib.colors import Normalize, PowerNorm
 
+# ── Global font sizes for paper-ready single-column plots ────────────
+plt.rcParams.update({
+    'font.size': 14,
+    'axes.titlesize': 18,
+    'axes.labelsize': 16,
+    'xtick.labelsize': 13,
+    'ytick.labelsize': 13,
+    'legend.fontsize': 13,
+    'legend.title_fontsize': 14,
+    'figure.titlesize': 18,
+})
+
 # ── Styling ──────────────────────────────────────────────────────────
 CATEGORY_ORDER = ["crypto", "forensics", "misc", "pwn", "reverse", "web"]
 
@@ -40,9 +52,9 @@ PROVIDER_COLORS = {
 }
 
 PALETTE = {
-    "frontier": "#3498DB", "small": "#E67E22", "open-source": "#9B59B6",
-    "reasoning": "#1ABC9C", "code-specialized": "#E74C3C",
-    "security-specialized": "#2ECC71",
+    "frontier": "#3498DB", "medium": "#1ABC9C", "small": "#E67E22",
+    "code_specialized": "#E74C3C", "open-source": "#9B59B6",
+    "security_specialized": "#2ECC71",
 }
 
 
@@ -69,7 +81,7 @@ def rq1rq2_all_conditions_bar(data: dict, out: Path):
     fig, ax = plt.subplots(figsize=(12, max(4, len(labels) * 0.8)))
     bars = ax.barh(labels, rates, color=colors, edgecolor="white", linewidth=1, height=0.65, zorder=3)
 
-    ax.set_xlabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_xlabel("Solve Rate (%)", fontsize=15, fontweight="bold")
     ax.set_title("Overall Solve Rates — Available Conditions",
                  fontsize=14, fontweight="bold", pad=12)
     max_rate = max(rates) if rates else 40
@@ -82,7 +94,7 @@ def rq1rq2_all_conditions_bar(data: dict, out: Path):
     for bar, rate, key in zip(bars, rates, sorted_keys):
         solved = conds[key]["overall"]["solved"]
         ax.text(bar.get_width() + 0.4, bar.get_y() + bar.get_height()/2,
-                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=10,
+                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=13,
                 fontweight="bold", color="#333")
 
     fig.tight_layout()
@@ -141,12 +153,12 @@ def rq1rq2_exit_reasons(data: dict, out: Path):
         for i, (bar, w) in enumerate(zip(bars, widths)):
             if w >= 8:
                 ax.text(lefts[i] + w / 2, bar.get_y() + bar.get_height() / 2,
-                        str(int(w)), ha="center", va="center", fontsize=9,
+                        str(int(w)), ha="center", va="center", fontsize=15,
                         fontweight="bold", color="white" if reason != "Not Attempted" else "#555")
 
         lefts += widths
 
-    ax.set_xlabel("Number of Challenges", fontsize=12, fontweight="bold")
+    ax.set_xlabel("Number of Challenges", fontsize=15, fontweight="bold")
     ax.set_title("Challenge Outcome Breakdown by Condition",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xlim(0, total + 5)
@@ -155,7 +167,7 @@ def rq1rq2_exit_reasons(data: dict, out: Path):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-    ax.legend(loc="lower right", fontsize=9, ncol=2, framealpha=0.9)
+    ax.legend(loc="lower right", fontsize=15, ncol=2, framealpha=0.9)
 
     fig.tight_layout()
     fig.savefig(out / "rq1rq2_exit_reasons.png", dpi=200, bbox_inches="tight")
@@ -188,7 +200,7 @@ def rq1rq2_category_comparison(data: dict, out: Path):
         bars = ax.bar(x + offset, rates, w, label=conds[key]["label"],
                       color=color, edgecolor="white", linewidth=0.8, zorder=3)
 
-    ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_ylabel("Solve Rate (%)", fontsize=15, fontweight="bold")
     ax.set_title("Solve Rates by Category and Condition",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xticks(x)
@@ -197,7 +209,7 @@ def rq1rq2_category_comparison(data: dict, out: Path):
                  [conds[key]["by_category"].get(c, {}).get("solve_rate", 0) * 100 for c in cats]]
     ax.set_ylim(0, max(all_rates) * 1.3 if all_rates else 45)
     ax.yaxis.set_major_formatter(mticker.PercentFormatter(decimals=0))
-    ax.legend(fontsize=9, loc="upper right")
+    ax.legend(fontsize=15, loc="upper right")
     ax.grid(axis="y", alpha=0.3, zorder=0)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -298,7 +310,7 @@ def rq1rq2_heatmap_table(data: dict, out: Path):
                               linewidth=1.5, clip_on=False)
         ax.add_patch(rect)
         ax.text(cx, 0, header_labels[ci], ha="center", va="center",
-                fontsize=12, fontweight="bold", color=tc)
+                fontsize=15, fontweight="bold", color=tc)
 
     # Find split point between Ubuntu and Kali rows
     kali_start = None
@@ -336,7 +348,7 @@ def rq1rq2_heatmap_table(data: dict, out: Path):
                 tc_color, fw = "#1a1a2e", "normal"
 
             ax.text(cx, ri + 1, txt, ha="center", va="center",
-                    fontsize=11, fontweight=fw, color=tc_color)
+                    fontsize=14, fontweight=fw, color=tc_color)
 
         # Heatmap columns (categories)
         for cj in range(n_cats):
@@ -351,7 +363,7 @@ def rq1rq2_heatmap_table(data: dict, out: Path):
 
             text_color = "white" if val > 40 else "#1a1a2e"
             ax.text(cx, ri + 1, f"{val:.1f}%", ha="center", va="center",
-                    fontsize=12, fontweight="bold", color=text_color)
+                    fontsize=15, fontweight="bold", color=text_color)
 
         # Overall column
         ci_overall = table_cols + n_cats
@@ -369,7 +381,7 @@ def rq1rq2_heatmap_table(data: dict, out: Path):
         ax.text(cx, ri + 0.85, f"{ov:.1f}%", ha="center", va="center",
                 fontsize=13, fontweight="bold", color=text_color)
         ax.text(cx, ri + 1.2, f"{solved}/{total}", ha="center", va="center",
-                fontsize=8, color=text_color, alpha=0.75)
+                fontsize=14, color=text_color, alpha=0.75)
 
     # ── Divider between Ubuntu and Kali groups ──
     if kali_start is not None and kali_start > 0:
@@ -417,12 +429,12 @@ def rq3_exit_reasons(data: dict, out: Path):
         for i, (bar, w) in enumerate(zip(bars, widths)):
             if w >= 8:
                 ax.text(lefts[i] + w / 2, bar.get_y() + bar.get_height() / 2,
-                        str(int(w)), ha="center", va="center", fontsize=9,
+                        str(int(w)), ha="center", va="center", fontsize=15,
                         fontweight="bold", color="white" if reason != "Not Attempted" else "#555")
 
         lefts += widths
 
-    ax.set_xlabel("Number of Challenges", fontsize=12, fontweight="bold")
+    ax.set_xlabel("Number of Challenges", fontsize=15, fontweight="bold")
     ax.set_title("Challenge Outcome Breakdown by Model",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xlim(0, total + 5)
@@ -431,7 +443,7 @@ def rq3_exit_reasons(data: dict, out: Path):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-    ax.legend(loc="lower right", fontsize=9, ncol=2, framealpha=0.9)
+    ax.legend(loc="lower right", fontsize=15, ncol=2, framealpha=0.9)
 
     fig.tight_layout()
     fig.savefig(out / "rq3_exit_reasons.png", dpi=200, bbox_inches="tight")
@@ -472,14 +484,14 @@ def rq3_horizontal_bar(data: dict, out: Path):
     for bar, rate, m in zip(bars, rates, models):
         solved = m["overall"]["solved"]
         ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=11,
+                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=14,
                 fontweight="bold", color="#333")
 
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=c, label=p) for p, c in PROVIDER_COLORS.items()
                        if p in {m["provider"] for m in models}]
     if legend_elements:
-        ax.legend(handles=legend_elements, loc="lower right", fontsize=11,
+        ax.legend(handles=legend_elements, loc="lower right", fontsize=14,
                   title="Provider", title_fontsize=12)
     fig.tight_layout()
     fig.savefig(out / "rq3_model_ranking.png", dpi=200, bbox_inches="tight")
@@ -497,31 +509,32 @@ def rq3_cost_vs_solve(data: dict, out: Path):
         print("  ⚠ No models available, skipping cost_vs_solve")
         return
 
-    fig, ax = plt.subplots(figsize=(10, 7))
+    fig, ax = plt.subplots(figsize=(12, 8))
     for m in models:
         x = m["overall"].get("avg_cost", 0)
         y = m["overall"]["solve_rate"] * 100
-        s = m["overall"].get("total_cost", 10) * 2.5 + 20
+        s = m["overall"].get("total_cost", 10) * 8 + 120
         c = PROVIDER_COLORS.get(m["provider"], "#888")
-        ax.scatter(x, y, s=s, c=c, alpha=0.75, edgecolors="white", linewidth=1.2, zorder=3)
-        ax.annotate(m["name"], (x, y), fontsize=7.5, ha="left", va="bottom",
-                    xytext=(5, 4), textcoords="offset points", color="#333")
-    ax.set_xlabel("Avg Cost per Challenge ($)", fontsize=12, fontweight="bold")
-    ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
-    ax.set_title("Cost-Performance Tradeoff", fontsize=14, fontweight="bold", pad=12)
+        ax.scatter(x, y, s=s, c=c, alpha=0.75, edgecolors="white", linewidth=1.5, zorder=3)
+        ax.annotate(m["name"], (x, y), fontsize=13, fontweight="bold", ha="left", va="bottom",
+                    xytext=(6, 5), textcoords="offset points", color="#333")
+    ax.set_xlabel("Avg Cost per Challenge ($)", fontsize=16, fontweight="bold")
+    ax.set_ylabel("Solve Rate (%)", fontsize=16, fontweight="bold")
+    ax.set_title("Cost-Performance Tradeoff", fontsize=18, fontweight="bold", pad=14)
+    ax.tick_params(axis="both", labelsize=13)
     ax.grid(alpha=0.3, zorder=0)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.annotate("← Lower cost, higher solve rate is better",
-                xy=(0.02, 0.98), xycoords="axes fraction", fontsize=8,
+                xy=(0.02, 0.98), xycoords="axes fraction", fontsize=14,
                 color="#999", ha="left", va="top", style="italic")
 
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=c, label=p) for p, c in PROVIDER_COLORS.items()
                        if p in {m["provider"] for m in models}]
     if legend_elements:
-        ax.legend(handles=legend_elements, loc="lower right", fontsize=9,
-                  title="Provider", title_fontsize=10)
+        ax.legend(handles=legend_elements, loc="lower right", fontsize=13,
+                  title="Provider", title_fontsize=14)
     fig.tight_layout()
     fig.savefig(out / "rq3_cost_vs_solve.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
@@ -588,7 +601,7 @@ def rq3_heatmap_table(data: dict, out: Path):
                               linewidth=1.5, clip_on=False)
         ax.add_patch(rect)
         ax.text(cx, 0, header_labels[ci], ha="center", va="center",
-                fontsize=11, fontweight="bold", color=tc)
+                fontsize=14, fontweight="bold", color=tc)
 
     # ── Data rows ──
     for ri in range(n_rows):
@@ -602,7 +615,7 @@ def rq3_heatmap_table(data: dict, out: Path):
         ax.add_patch(rect)
         provider_color = PROVIDER_COLORS.get(models_sorted[ri]["provider"], "#1a1a2e")
         ax.text(cx, ri + 1, names[ri], ha="center", va="center",
-                fontsize=10, fontweight="bold", color=provider_color)
+                fontsize=13, fontweight="bold", color=provider_color)
 
         # Category columns
         for cj in range(n_cats):
@@ -617,7 +630,7 @@ def rq3_heatmap_table(data: dict, out: Path):
 
             text_color = "white" if val > 30 else "black"
             ax.text(cx, ri + 1, f"{val:.1f}%", ha="center", va="center",
-                    fontsize=10, fontweight="bold", color=text_color)
+                    fontsize=13, fontweight="bold", color=text_color)
 
         # Overall column
         ci_overall = 1 + n_cats
@@ -633,9 +646,9 @@ def rq3_heatmap_table(data: dict, out: Path):
         solved = models_sorted[ri]["overall"]["solved"]
         text_color = "white" if ov > 30 else "black"
         ax.text(cx, ri + 0.85, f"{ov:.1f}%", ha="center", va="center",
-                fontsize=12, fontweight="bold", color=text_color)
+                fontsize=15, fontweight="bold", color=text_color)
         ax.text(cx, ri + 1.2, f"{solved}/{total}", ha="center", va="center",
-                fontsize=8, color=text_color, alpha=0.75)
+                fontsize=14, color=text_color, alpha=0.75)
 
     fig.suptitle("RQ3: Solve Rates by Model × Category",
                  fontsize=15, fontweight="bold", x=0.5, y=0.97, ha="center")
@@ -666,17 +679,17 @@ def rq3_model_type_comparison(data: dict, out: Path):
     fig, ax = plt.subplots(figsize=(9, 5))
     bars = ax.bar(range(len(types)), means, yerr=stds, capsize=5,
                   color=colors_list, edgecolor="white", linewidth=1, zorder=3)
-    ax.set_ylabel("Avg Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_ylabel("Avg Solve Rate (%)", fontsize=15, fontweight="bold")
     ax.set_title("Performance by Model Type", fontsize=14, fontweight="bold", pad=12)
     ax.set_xticks(range(len(types)))
-    ax.set_xticklabels([t.replace("-", " ").title() for t in types], fontsize=10, rotation=15, ha="right")
+    ax.set_xticklabels([t.replace("-", " ").title() for t in types], fontsize=13, rotation=15, ha="right")
     ax.set_ylim(0, max(means) * 1.4 if means else 45)
     ax.grid(axis="y", alpha=0.3, zorder=0)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     for b, m_val, n in zip(bars, means, [len(type_rates[t]) for t in types]):
         ax.text(b.get_x() + b.get_width()/2, b.get_height() + 1.5,
-                f"{m_val:.1f}%\n(n={n})", ha="center", fontsize=9, color="#333")
+                f"{m_val:.1f}%\n(n={n})", ha="center", fontsize=15, color="#333")
     fig.tight_layout()
     fig.savefig(out / "rq3_model_types.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
@@ -709,7 +722,7 @@ def rq4_architecture_bar(data: dict, out: Path):
     fig, ax = plt.subplots(figsize=(12, max(3.5, len(labels) * 0.9)))
     bars = ax.barh(labels, rates, color=colors, edgecolor="white", linewidth=1, height=0.6, zorder=3)
 
-    ax.set_xlabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_xlabel("Solve Rate (%)", fontsize=15, fontweight="bold")
     ax.set_title("Planner/Executor Architecture Comparison",
                  fontsize=14, fontweight="bold", pad=12)
     max_rate = max(rates) if rates else 50
@@ -723,7 +736,7 @@ def rq4_architecture_bar(data: dict, out: Path):
         solved = conds[key]["overall"]["solved"]
         detail = f"P: {conds[key]['planner']}  E: {conds[key]['executor']}"
         ax.text(bar.get_width() + 0.4, bar.get_y() + bar.get_height() / 2,
-                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=10,
+                f"{rate:.1f}%  ({solved}/{total})", va="center", fontsize=13,
                 fontweight="bold", color="#333")
 
     fig.tight_layout()
@@ -786,7 +799,7 @@ def rq4_category_heatmap(data: dict, out: Path):
                               linewidth=1.5, clip_on=False)
         ax.add_patch(rect)
         ax.text(cx, 0, header_labels[ci], ha="center", va="center",
-                fontsize=11, fontweight="bold", color=tc)
+                fontsize=14, fontweight="bold", color=tc)
 
     for ri, k in enumerate(key_order):
         y_top = ri + 0.5
@@ -796,7 +809,7 @@ def rq4_category_heatmap(data: dict, out: Path):
                               facecolor=bg, edgecolor="#ccc", linewidth=0.8, clip_on=False)
         ax.add_patch(rect)
         ax.text(cx, ri + 1, conds[k]["label"], ha="center", va="center",
-                fontsize=10, fontweight="bold", color="#1a1a2e")
+                fontsize=13, fontweight="bold", color="#1a1a2e")
 
         for cj in range(n_cats):
             ci = 1 + cj
@@ -808,7 +821,7 @@ def rq4_category_heatmap(data: dict, out: Path):
             ax.add_patch(rect)
             text_color = "white" if val > 30 else "black"
             ax.text(cx, ri + 1, f"{val:.1f}%", ha="center", va="center",
-                    fontsize=10, fontweight="bold", color=text_color)
+                    fontsize=13, fontweight="bold", color=text_color)
 
         ci_overall = 1 + n_cats
         left, cx, right = col_x(ci_overall)
@@ -821,9 +834,9 @@ def rq4_category_heatmap(data: dict, out: Path):
         solved = conds[k]["overall"]["solved"]
         text_color = "white" if ov > 30 else "black"
         ax.text(cx, ri + 0.85, f"{ov:.1f}%", ha="center", va="center",
-                fontsize=12, fontweight="bold", color=text_color)
+                fontsize=15, fontweight="bold", color=text_color)
         ax.text(cx, ri + 1.2, f"{solved}/{total}", ha="center", va="center",
-                fontsize=8, color=text_color, alpha=0.75)
+                fontsize=14, color=text_color, alpha=0.75)
 
     fig.suptitle("RQ4: Planner/Executor Architecture × Category",
                  fontsize=15, fontweight="bold", x=0.5, y=0.97, ha="center")
@@ -858,21 +871,21 @@ def rq5_reproducibility_chart(data: dict, out: Path):
 
     ax.set_xticks(x)
     ax.set_xticklabels(run_labels, fontsize=11)
-    ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_ylabel("Solve Rate (%)", fontsize=15, fontweight="bold")
     ax.set_title(f"Reproducibility — {data.get('model', 'Model')}",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xlim(-0.5, len(runs) - 0.5)
     ax.grid(axis="y", alpha=0.3, zorder=0)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.legend(fontsize=11, loc="upper right")
+    ax.legend(fontsize=14, loc="upper right")
 
     total = data.get("total_challenges", 200)
     for bar, rate, run in zip(bars, rates, runs):
         solved = run["overall"]["solved"]
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
                 f"{rate:.1f}%\n({solved}/{total})", ha="center", va="bottom",
-                fontsize=9, fontweight="bold", color="#333")
+                fontsize=15, fontweight="bold", color="#333")
 
     fig.tight_layout()
     fig.savefig(out / "rq5_reproducibility.png", dpi=200, bbox_inches="tight")
@@ -899,12 +912,12 @@ def rq5_category_variance(data: dict, out: Path):
         ax.bar(x + offset, rates, w, label=f"Run {run['run']}",
                color=cmap_runs[i], edgecolor="white", linewidth=0.8, zorder=3)
 
-    ax.set_ylabel("Solve Rate (%)", fontsize=12, fontweight="bold")
+    ax.set_ylabel("Solve Rate (%)", fontsize=15, fontweight="bold")
     ax.set_title("Per-Category Solve Rates Across Runs",
                  fontsize=14, fontweight="bold", pad=12)
     ax.set_xticks(x)
     ax.set_xticklabels([c.capitalize() for c in cats], fontsize=11)
-    ax.legend(fontsize=9)
+    ax.legend(fontsize=12)
     ax.grid(axis="y", alpha=0.3, zorder=0)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
